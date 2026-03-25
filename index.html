@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryotronics ERP - Sistema Completo 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #0b2b40; --accent: #27ae60; --danger: #c0392b; --info: #2980b9; --bg: #f4f7f6; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); padding-bottom: 50px; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .nav { display: flex; gap: 5px; overflow-x: auto; padding: 10px; background: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .nav button { padding: 10px 15px; border-radius: 15px; border: 1px solid #ddd; background: white; white-space: nowrap; font-weight: 600; cursor: pointer; }
+        .nav button.active { background: var(--primary); color: white; }
+        .page { display: none; padding: 15px; max-width: 1100px; margin: auto; }
+        .page.active { display: block; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0 15px; border-radius: 8px; border: 1px solid #ccc; }
+        .btn { padding: 12px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; display: inline-block; text-align: center; }
+        .btn-add { background: var(--accent); width: 100%; }
+        .btn-copy { background: #6c757d; }
+        .btn-del { background: var(--danger); padding: 5px 10px; font-size: 0.8rem; }
+        .btn-edit { background: var(--info); padding: 5px 10px; font-size: 0.8rem; margin-right: 2px; }
+        .btn-excel { background: #1d6f42; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+        th, td { padding: 12px 8px; border-bottom: 1px solid #eee; text-align: left; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; width: 90%; max-width: 600px; border-radius: 12px; }
+        .resumo-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd; }
+        .badge { padding: 3px 6px; border-radius: 4px; color: white; font-size: 0.7rem; font-weight: bold; }
+        .bg-r { background: var(--accent); } .bg-c { background: #e67e22; } .bg-d { background: var(--danger); }
+    </style>
+</head>
+<body>
+
+<header><h3>Cryotronics ERP 2026</h3></header>
+
+<div class="nav">
+    <button onclick="tab('t1')" id="bt1" class="active">📊 Dashboard</button>
+    <button onclick="tab('t2')" id="bt2">💰 Lançamentos</button>
+    <button onclick="tab('t3')" id="bt3">📈 Resultado (DRE)</button>
+    <button onclick="tab('t4')" id="bt4">📂 Plano de Contas</button>
+</div>
+
+<div id="t1" class="page active">
+    <div class="card">
+        <label>Período:</label>
+        <select id="dashFiltro" onchange="renderDash()">
+            <option value="ano">Ano Completo 2026</option>
+            <option value="mes">Mês Atual</option>
+        </select>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px;">
+        <div class="card"><h4>Entradas vs Saídas</h4><canvas id="chartEv"></canvas></div>
+        <div class="card"><h4>Distribuição de Custos</h4><canvas id="chartPi"></canvas></div>
+    </div>
+</div>
+
+<div id="t2" class="page">
+    <div class="card">
+        <h4 id="txTitle">Novo Registro</h4>
+        <input type="hidden" id="txIndex">
+        <div style="display: flex; gap: 10px;">
+            <div style="flex:1"><label>Data</label><input type="date" id="txData"></div>
+            <div style="flex:1"><label>Valor R$</label><input type="number" id="txVal" step="0.01"></div>
+        </div>
+        <label>Categoria Contábil</label><select id="txConta"></select>
+        <label>Descrição/Observação</label><input type="text" id="txDesc" placeholder="Ex: NF 102 - Manutenção">
+        <button onclick="salvarTx()" class="btn btn-add" id="btnSalvarTx">SALVAR LANÇAMENTO</button>
+        <button onclick="resetTxForm()" class="btn btn-del" id="btnCancelTx" style="display:none; width:100%; margin-top:5px;">CANCELAR EDIÇÃO</button>
+    </div>
+    <div class="card" style="overflow-x:auto">
+        <button onclick="exportExcel()" class="btn btn-excel"><i class="fas fa-file-excel"></i> Exportar Tudo</button>
+        <table id="tabTx">
+            <thead><tr><th>Data</th><th>Conta</th><th>Valor</th><th>Ações</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="t3" class="page">
+    <div class="card">
+        <h4>Demonstrativo de Resultados</h4>
+        <div style="display:flex; gap:10px;">
+            <input type="month" id="dreIni" onchange="gerarDRE()">
+            <input type="month" id="dreFim" onchange="gerarDRE()">
+        </div>
+        <div id="dreResultado" style="margin-top:20px;"></div>
+    </div>
+</div>
+
+<div id="t4" class="page">
+    <div class="card">
+        <h4>Gestão do Plano de Contas</h4>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button onclick="abrirModalCopy()" class="btn btn-copy"><i class="fas fa-paste"></i> Colar do Excel</button>
+            <button onclick="resetAccForm(); document.getElementById('accForm').style.display='block'" class="btn btn-add" style="width: auto;">+ Nova Conta Manual</button>
+        </div>
+
+        <div id="accForm" style="display:none; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h5 id="accTitle">Configurar Conta</h5>
+            <input type="hidden" id="accIndex">
+            <input type="text" id="accCod" placeholder="Código (Ex: 3.1.1.01)">
+            <input type="text" id="accNome" placeholder="Nome da Conta">
+            <select id="accTipo">
+                <option value="r">Receita</option>
+                <option value="c">Custo</option>
+                <option value="d">Despesa</option>
+            </select>
+            <button onclick="salvarConta()" class="btn btn-add">SALVAR NA ESTRUTURA</button>
+            <button onclick="document.getElementById('accForm').style.display='none'" class="btn btn-copy" style="width:100%; margin-top:5px;">FECHAR</button>
+        </div>
+
+        <table id="tabAcc">
+            <thead><tr><th>Código</th><th>Nome</th><th>Tipo</th><th>Ações</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modalCopy" class="modal">
+    <div class="modal-content">
+        <h4>Importar do Excel</h4>
+        <p style="font-size: 0.75rem; color: #666; margin-bottom: 10px;">Cole colunas: <b>Código | Nome | Natureza (r, c, d)</b></p>
+        <textarea id="pasteArea" rows="10" placeholder="Cole aqui..."></textarea>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="processarColagem()" class="btn btn-add">IMPORTAR</button>
+            <button onclick="fecharModalCopy()" class="btn btn-copy">CANCELAR</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let charts = {};
+    let db = JSON.parse(localStorage.getItem('cryo_full_v1')) || {
+        contas: [
+            {c:'3.1.1.01', n:'Venda de Produtos', t:'r'},
+            {c:'3.2.1.01', n:'Custos de Insumos', t:'c'},
+            {c:'3.2.2.03', n:'Honorários Contabilidade', t:'d'}
+        ],
+        movs: []
+    };
+
+    function tab(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('b'+id).classList.add('active');
+        if(id === 't1') renderDash();
+        if(id === 't3') gerarDRE();
+    }
+
+    // --- PLANO DE CONTAS ---
+    function salvarConta() {
+        const cod = document.getElementById('accCod').value;
+        const nome = document.getElementById('accNome').value;
+        const tipo = document.getElementById('accTipo').value;
+        const idx = document.getElementById('accIndex').value;
+
+        if(!cod || !nome) return alert("Preencha os campos!");
+        const obj = { c: cod, n: nome, t: tipo };
+
+        if(idx === "") db.contas.push(obj);
+        else db.contas[idx] = obj;
+
+        save(); init();
+        document.getElementById('accForm').style.display = 'none';
+    }
+
+    function editarConta(i) {
+        const item = db.contas[i];
+        document.getElementById('accIndex').value = i;
+        document.getElementById('accCod').value = item.c;
+        document.getElementById('accNome').value = item.n;
+        document.getElementById('accTipo').value = item.t;
+        document.getElementById('accForm').style.display = 'block';
+        window.scrollTo(0,0);
+    }
+
+    function excluirConta(i) {
+        if(confirm("Excluir categoria?")) { db.contas.splice(i, 1); save(); init(); }
+    }
+
+    function abrirModalCopy() { document.getElementById('modalCopy').style.display = 'block'; }
+    function fecharModalCopy() { document.getElementById('modalCopy').style.display = 'none'; document.getElementById('pasteArea').value = ''; }
+    
+    function processarColagem() {
+        const text = document.getElementById('pasteArea').value;
+        const linhas = text.split('\n');
+        linhas.forEach(l => {
+            const col = l.split('\t');
+            if(col.length >= 2) db.contas.push({ c: col[0].trim(), n: col[1].trim(), t: (col[2]||'d').trim().toLowerCase() });
+        });
+        save(); init(); fecharModalCopy();
+    }
+
+    // --- LANÇAMENTOS ---
+    function salvarTx() {
+        const v = parseFloat(document.getElementById('txVal').value);
+        const d = document.getElementById('txData').value;
+        const c = document.getElementById('txConta').value;
+        const s = document.getElementById('txDesc').value;
+        const idx = document.getElementById('txIndex').value;
+
+        if(!v || !d) return alert("Erro nos dados!");
+        const obj = { d, c, s, v };
+
+        if(idx === "") db.movs.push(obj);
+        else db.movs[idx] = obj;
+
+        save(); resetTxForm(); init();
+    }
+
+    function editarTx(i) {
+        const m = db.movs[i];
+        document.getElementById('txIndex').value = i;
+        document.getElementById('txData').value = m.d;
+        document.getElementById('txVal').value = m.v;
+        document.getElementById('txConta').value = m.c;
+        document.getElementById('txDesc').value = m.s;
+        document.getElementById('txTitle').innerText = "Editando Registro";
+        document.getElementById('btnCancelTx').style.display = "block";
+        tab('t2');
+    }
+
+    function excluirTx(i) { if(confirm("Excluir registro?")) { db.movs.splice(i,1); save(); init(); } }
+    function resetTxForm() { 
+        document.getElementById('txIndex').value = ""; 
+        document.getElementById('txTitle').innerText = "Novo Registro";
+        document.getElementById('btnCancelTx').style.display = "none";
+        document.getElementById('txDesc').value = "";
+        document.getElementById('txVal').value = "";
+    }
+
+    // --- CORE ---
+    function save() { localStorage.setItem('cryo_full_v1', JSON.stringify(db)); }
+
+    function init() {
+        document.getElementById('txConta').innerHTML = db.contas.sort((a,b)=>a.c.localeCompare(b.c)).map(p => `<option value="${p.n}">${p.c} - ${p.n}</option>`).join('');
+        
+        document.querySelector('#tabAcc tbody').innerHTML = db.contas.map((p, i) => `
+            <tr><td>${p.c}</td><td>${p.n}</td><td><span class="badge bg-${p.t}">${p.t.toUpperCase()}</span></td>
+            <td><button class="btn btn-edit" onclick="editarConta(${i})"><i class="fas fa-edit"></i></button>
+            <button class="btn btn-del" onclick="excluirConta(${i})"><i class="fas fa-trash"></i></button></td></tr>
+        `).join('');
+
+        document.querySelector('#tabTx tbody').innerHTML = db.movs.slice().reverse().map((m, i) => {
+            const rIdx = db.movs.length - 1 - i;
+            return `<tr><td>${m.d.split('-').reverse().slice(0,2).join('/')}</td><td>${m.c}</td><td>R$ ${m.v.toFixed(2)}</td>
+            <td><button class="btn btn-edit" onclick="editarTx(${rIdx})"><i class="fas fa-edit"></i></button>
+            <button class="btn btn-del" onclick="excluirTx(${rIdx})"><i class="fas fa-trash"></i></button></td></tr>`;
+        }).join('');
+    }
+
+    function renderDash() {
+        const f = document.getElementById('dashFiltro').value;
+        const dados = f === 'mes' ? db.movs.filter(m => m.d.startsWith(new Date().toISOString().slice(0,7))) : db.movs;
+        const r = dados.filter(m => db.contas.find(c=>c.n===m.c)?.t === 'r').reduce((a,b)=>a+b.v,0);
+        const s = dados.filter(m => db.contas.find(c=>c.n===m.c)?.t !== 'r').reduce((a,b)=>a+b.v,0);
+
+        if(charts.ev) charts.ev.destroy();
+        charts.ev = new Chart(document.getElementById('chartEv'), {
+            type: 'bar', data: { labels: ['Entradas','Saídas'], datasets:[{data:[r,s], backgroundColor:['#27ae60','#c0392b']}]}
+        });
+        
+        const pizza = {};
+        dados.filter(m => db.contas.find(c=>c.n===m.c)?.t !== 'r').forEach(m => pizza[m.c] = (pizza[m.c]||0)+m.v);
+        if(charts.pi) charts.pi.destroy();
+        charts.pi = new Chart(document.getElementById('chartPi'), {
+            type: 'doughnut', data: { labels: Object.keys(pizza), datasets:[{data:Object.values(pizza), backgroundColor:['#3498db','#f1c40f','#e67e22','#e74c3c','#9b59b6']}]}
+        });
+    }
+
+    function gerarDRE() {
+        const i = document.getElementById('dreIni').value, f = document.getElementById('dreFim').value;
+        const list = db.movs.filter(m => m.d.slice(0,7) >= i && m.d.slice(0,7) <= f);
+        const calc = (t) => list.filter(m => db.contas.find(c=>c.n===m.c)?.t === t).reduce((a,b)=>a+b.v,0);
+        const r = calc('r'), c = calc('c'), d = calc('d');
+        document.getElementById('dreResultado').innerHTML = `
+            <div class="resumo-item"><span>Receitas</span><span style="color:green">R$ ${r.toFixed(2)}</span></div>
+            <div class="resumo-item"><span>Custos Variáveis</span><span style="color:red">R$ ${c.toFixed(2)}</span></div>
+            <div class="resumo-item"><span>Despesas Operacionais</span><span style="color:red">R$ ${d.toFixed(2)}</span></div>
+            <div style="background:var(--primary); color:white; padding:15px; border-radius:8px; margin-top:10px; font-weight:bold">LUCRO LÍQUIDO: R$ ${(r-c-d).toFixed(2)}</div>
+        `;
+    }
+
+    function exportExcel() {
+        const ws = XLSX.utils.json_to_sheet(db.movs);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Financeiro");
+        XLSX.writeFile(wb, "Cryotronics_ERP_2026.xlsx");
+    }
+
+    const h = new Date().toISOString();
+    document.getElementById('txData').value = h.split('T')[0];
+    document.getElementById('dreIni').value = h.slice(0,7);
+    document.getElementById('dreFim').value = h.slice(0,7);
+    init();
+</script>
+</body>
+</html>
