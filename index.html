@@ -3,161 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Cryotronics ERP - Gestão 2026</title>
+    <title>Cryotronics ERP - Controle Total</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
         :root { --primary: #0b2b40; --secondary: #1c4e63; --success: #27ae60; --danger: #c0392b; --warning: #f39c12; --light: #f4f7f6; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background: var(--light); color: #333; padding-bottom: 50px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--light); padding-bottom: 50px; }
+        header { background: var(--primary); color: white; padding: 20px; text-align: center; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 15px; }
+
+        /* Navegação */
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; overflow-x: auto; position: sticky; top: 0; z-index: 100; background: var(--light); padding: 5px 0; }
+        .tab-btn { background: white; border: 1px solid #ddd; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; min-width: 100px; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Cards e UI */
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h3 { font-size: 1.1rem; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         
-        header { background: var(--primary); color: white; padding: 25px 15px; border-radius: 0 0 20px 20px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .status-badge { font-size: 0.65rem; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 10px; margin-top: 8px; display: inline-block; }
-
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 15px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #444; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; }
         
-        /* Menu em Tabs Estilo App */
-        .tabs { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 20px; padding-bottom: 5px; }
-        .tab-btn { background: white; border: none; padding: 12px 18px; border-radius: 12px; cursor: pointer; font-weight: 600; color: var(--primary); white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.3s; }
-        .tab-btn.active { background: var(--primary); color: white; }
-
-        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .card h3 { margin-bottom: 15px; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; color: var(--primary); }
-
-        /* Formulários */
-        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: #666; }
-        input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; outline: none; font-size: 1rem; }
-        button { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-main { background: var(--primary); color: white; }
-        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn { border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+        .btn-add { background: var(--success); color: white; width: 100%; }
+        .btn-del { color: var(--danger); background: none; font-size: 1.1rem; }
+        
+        /* Tabelas */
+        .table-res { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+        th { text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #666; font-size: 0.8rem; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
 
         /* Dashboard */
-        .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-        .summary-item { background: white; padding: 15px; border-radius: 15px; text-align: center; border-bottom: 4px solid #ddd; }
-        .summary-item.rec { border-color: var(--success); }
-        .summary-item.desp { border-color: var(--danger); }
-        .summary-val { font-size: 1.2rem; font-weight: 800; display: block; margin-top: 5px; }
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-box { padding: 15px; border-radius: 12px; color: white; text-align: center; }
+        .stat-box h4 { font-size: 0.8rem; opacity: 0.9; margin-bottom: 5px; }
+        .stat-box p { font-size: 1.2rem; font-weight: bold; }
 
-        /* Tabelas */
-        .table-wrapper { overflow-x: auto; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { text-align: left; padding: 12px; background: #f8f9fa; color: #666; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        
-        /* DRE Especial */
-        .dre-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
-        .dre-total { font-weight: 800; background: var(--primary); color: white; padding: 12px; border-radius: 8px; margin-top: 10px; }
-
-        #authOverlay { position: fixed; inset: 0; background: var(--primary); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px; }
-        .tab-content { display: none; animation: fadeIn 0.3s; }
+        #authOverlay { position: fixed; inset: 0; background: var(--primary); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div id="authOverlay">
-    <i class="fas fa-snowflake fa-4x" style="margin-bottom: 20px;"></i>
-    <h1 style="letter-spacing: 2px;">CRYOTRONICS</h1>
-    <p style="opacity: 0.8; margin-bottom: 30px;">Cloud Management System</p>
-    <input type="password" id="pinInput" placeholder="PIN de Acesso" style="width:250px; text-align:center; margin-bottom:15px;">
-    <button onclick="login()" class="btn-main" style="width:250px; background: var(--success);">Entrar</button>
+    <h2>CRYOTRONICS ERP</h2>
+    <input type="password" id="pinInput" placeholder="Digite seu PIN" style="width:200px; text-align:center; margin-top:20px;">
+    <button onclick="login()" class="btn" style="width:200px; margin-top:10px; background:var(--success); color:white;">Acessar Sistema</button>
 </div>
 
 <div class="container" id="mainApp" style="display: none;">
     <header>
-        <h2><i class="fas fa-microchip"></i> Cryotronics Cloud</h2>
-        <div class="status-badge"><i class="fas fa-circle" style="color:#2ecc71"></i> Servidor Ativo: 2026</div>
+        <h2>Cryotronics Cloud</h2>
     </header>
 
     <nav class="tabs">
-        <button class="tab-btn active" data-tab="dash"><i class="fas fa-home"></i> Painel</button>
-        <button class="tab-btn" data-tab="add"><i class="fas fa-plus"></i> Lançar</button>
-        <button class="tab-btn" data-tab="list"><i class="fas fa-list"></i> Extrato</button>
-        <button class="tab-btn" data-tab="dre-tab"><i class="fas fa-file-invoice-dollar"></i> DRE</button>
+        <button class="tab-btn active" data-tab="tab-dash">Dashboard</button>
+        <button class="tab-btn" data-tab="tab-lanc">Lançamentos</button>
+        <button class="tab-btn" data-tab="tab-plano">Plano de Contas</button>
     </nav>
 
-    <div id="dash" class="tab-content active">
-        <div class="summary-grid">
-            <div class="summary-item rec">
-                <label>Faturamento</label>
-                <span class="summary-val" id="sumRec" style="color:var(--success)">R$ 0,00</span>
-            </div>
-            <div class="summary-item desp">
-                <label>Custos/Desp.</label>
-                <span class="summary-val" id="sumDesp" style="color:var(--danger)">R$ 0,00</span>
+    <div id="tab-dash" class="tab-content active">
+        <div class="card">
+            <h3><i class="fas fa-filter"></i> Filtro de Período</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="month" id="dashMes" onchange="renderDashboard()">
+                <select id="dashAno" onchange="renderDashboard()">
+                    <option value="mes">Apenas este mês</option>
+                    <option value="ano">Ano Completo</option>
+                </select>
             </div>
         </div>
+
+        <div class="grid-stats">
+            <div class="stat-box" style="background:var(--success)"><h4>Entradas</h4><p id="statRec">R$ 0,00</p></div>
+            <div class="stat-box" style="background:var(--danger)"><h4>Saídas</h4><p id="statGasto">R$ 0,00</p></div>
+            <div class="stat-box" style="background:var(--primary)"><h4>Lucro</h4><p id="statLucro">R$ 0,00</p></div>
+        </div>
+
         <div class="card">
-            <h3><i class="fas fa-chart-area"></i> Fluxo de Caixa (6 Meses)</h3>
-            <canvas id="flowChart" height="180"></canvas>
+            <canvas id="chartGeral" height="200"></canvas>
         </div>
     </div>
 
-    <div id="add" class="tab-content">
+    <div id="tab-lanc" class="tab-content">
         <div class="card">
-            <h3><i class="fas fa-cash-register"></i> Registrar Movimentação</h3>
-            <div class="input-group">
-                <label>Data</label>
-                <input type="date" id="fDate">
-            </div>
-            <div class="input-group">
-                <label>Descrição / Cliente</label>
-                <input type="text" id="fDesc" placeholder="Ex: Manutenção Chiller Bradesco">
-            </div>
-            <div class="form-row">
-                <div class="input-group">
-                    <label>Categoria</label>
-                    <select id="fCat"></select>
-                </div>
-                <div class="input-group">
-                    <label>Valor (R$)</label>
-                    <input type="number" step="0.01" id="fVal" placeholder="0,00">
-                </div>
-            </div>
-            <button onclick="saveData()" class="btn-main" style="padding: 18px;"><i class="fas fa-check-circle"></i> SALVAR NO CLOUD</button>
+            <h3><i class="fas fa-plus-circle"></i> Novo Lançamento</h3>
+            <div class="form-group"><label>Data</label><input type="date" id="lDate"></div>
+            <div class="form-group"><label>Descrição / Cliente</label><input type="text" id="lDesc"></div>
+            <div class="form-group"><label>Conta do Plano</label><select id="lConta"></select></div>
+            <div class="form-group"><label>Valor R$</label><input type="number" step="0.01" id="lVal"></div>
+            <button onclick="saveLancamento()" class="btn btn-add">SALVAR NO BANCO</button>
         </div>
-    </div>
 
-    <div id="list" class="tab-content">
         <div class="card">
-            <h3><i class="fas fa-search"></i> Filtros</h3>
-            <div class="form-row">
-                <input type="month" id="filterMonth">
-                <select id="filterType"><option value="all">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option></select>
-            </div>
-        </div>
-        <div class="card" style="padding: 10px;">
-            <div class="table-wrapper">
-                <table id="mainTable">
-                    <thead><tr><th>Data</th><th>Desc/Conta</th><th>Valor</th><th></th></tr></thead>
+            <h3><i class="fas fa-list"></i> Histórico de Lançamentos</h3>
+            <div class="table-res">
+                <table id="tableLanc">
+                    <thead><tr><th>Data</th><th>Conta</th><th>Valor</th><th></th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div id="dre-tab" class="tab-content">
+    <div id="tab-plano" class="tab-content">
         <div class="card">
-            <div class="form-row" style="margin-bottom: 20px;">
-                <input type="month" id="dreMonth">
-                <button onclick="renderDRE()" class="btn-main">Gerar DRE</button>
+            <h3><i class="fas fa-folder-plus"></i> Gerenciar Plano</h3>
+            <div class="form-group"><label>Código</label><input type="text" id="pCod" placeholder="Ex: 3.1.1.01"></div>
+            <div class="form-group"><label>Descrição</label><input type="text" id="pNome" placeholder="Ex: Venda de Serviços"></div>
+            <div class="form-group">
+                <label>Categoria para DRE</label>
+                <select id="pTipo">
+                    <option value="REC">Receita (Entrada)</option>
+                    <option value="IMP">Imposto (Saída)</option>
+                    <option value="CUSTO">Custo Peças/MO (Saída)</option>
+                    <option value="DESP">Despesa Fixa (Saída)</option>
+                </select>
             </div>
-            <div id="dreArea">
-                <p style="text-align:center; color:#999;">Selecione o mês para calcular.</p>
+            <button onclick="savePlano()" class="btn btn-add">ADICIONAR AO PLANO</button>
+        </div>
+
+        <div class="card">
+            <h3>Plano Atual</h3>
+            <div class="table-res">
+                <table id="tablePlano">
+                    <thead><tr><th>Código</th><th>Nome</th><th>Tipo</th><th></th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
+    // Config Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyByKC9bZlxKORGveQYcNtEjox5ewxrwH2c",
         authDomain: "cryoges.firebaseapp.com",
@@ -167,159 +155,162 @@
         messagingSenderId: "272383154652",
         appId: "1:272383154652:web:9bd1ebd415243f22b39719"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    let myChart = null;
 
-    // Plano de Contas Cryotronics 2026
-    const PLANO = [
-        { c: "1.1", n: "Receita: Manutenção/Serviços", t: "entrada", cat: "REC" },
-        { c: "1.2", n: "Receita: Venda de Peças", t: "entrada", cat: "REC" },
-        { c: "2.1", n: "Imposto: Simples Nacional", t: "saida", cat: "IMP" },
-        { c: "3.1", n: "Custo: Peças e Insumos", t: "saida", cat: "CUSTO" },
-        { c: "3.2", n: "Custo: Mão de Obra/Terceiros", t: "saida", cat: "CUSTO" },
-        { c: "4.1", n: "Despesa: Aluguel/Oficina", t: "saida", cat: "DESP" },
-        { c: "4.2", n: "Despesa: Viagens/Combustível", t: "saida", cat: "DESP" },
-        { c: "4.3", n: "Despesa: Contabilidade/Fixos", t: "saida", cat: "DESP" }
+    // Inicialização do Plano conforme seu Excel
+    const INITIAL_PLANO = [
+        {cod: "3.1.1.01", nome: "Venda de Produtos", tipo: "REC"},
+        {cod: "3.1.1.03", nome: "Venda de Serviços", tipo: "REC"},
+        {cod: "2.1.3.01", nome: "SIMPLES NACIONAL", tipo: "IMP"},
+        {cod: "3.2.1.01", nome: "Custos de Insumos / Peças", tipo: "CUSTO"},
+        {cod: "3.2.1.02", nome: "Mão de Obra (Equipe/Terceiros)", tipo: "CUSTO"},
+        {cod: "3.2.2.01", nome: "Despesas Administrativas", tipo: "DESP"},
+        {cod: "3.2.2.02", nome: "Despesas com Viagens", tipo: "DESP"},
+        {cod: "3.2.2.04", nome: "Despesas com correios", tipo: "DESP"},
+        {cod: "2.1.5.04", nome: "Aluguel", tipo: "DESP"}
     ];
-
-    let dbData = {};
 
     function login() {
         if(document.getElementById("pinInput").value === "1234") {
             document.getElementById("authOverlay").style.display = "none";
             document.getElementById("mainApp").style.display = "block";
-            init();
-        } else { alert("Acesso Negado."); }
+            start();
+        } else { alert("PIN Incorreto!"); }
     }
 
-    function init() {
-        // Carregar Categorias
-        const sel = document.getElementById("fCat");
-        sel.innerHTML = PLANO.map((p, i) => `<option value="${i}">${p.c} - ${p.n}</option>`).join('');
-        
-        document.getElementById("fDate").valueAsDate = new Date();
-        document.getElementById("filterMonth").value = new Date().toISOString().slice(0, 7);
-        document.getElementById("dreMonth").value = new Date().toISOString().slice(0, 7);
+    function start() {
+        document.getElementById("lDate").valueAsDate = new Date();
+        document.getElementById("dashMes").value = new Date().toISOString().slice(0, 7);
 
-        // Listener Realtime
-        db.ref('movimentacoes').on('value', snap => {
-            dbData = snap.val() || {};
-            updateUI();
+        // Listen Plano
+        db.ref('plano_contas').on('value', snap => {
+            if(!snap.val()) { INITIAL_PLANO.forEach(p => db.ref('plano_contas').push(p)); return; }
+            renderPlanoUI(snap.val());
+        });
+
+        // Listen Lançamentos
+        db.ref('lancamentos').on('value', snap => {
+            renderLancamentosUI(snap.val());
+            renderDashboard();
         });
     }
 
-    function saveData() {
-        const val = parseFloat(document.getElementById("fVal").value);
-        const desc = document.getElementById("fDesc").value;
+    // --- FUNÇÕES DE PLANO ---
+    function savePlano() {
+        const cod = document.getElementById("pCod").value;
+        const nome = document.getElementById("pNome").value;
+        const tipo = document.getElementById("pTipo").value;
+        if(cod && nome) {
+            db.ref('plano_contas').push({cod, nome, tipo});
+            document.getElementById("pCod").value = "";
+            document.getElementById("pNome").value = "";
+        }
+    }
+
+    function renderPlanoUI(data) {
+        const tbody = document.querySelector("#tablePlano tbody");
+        const select = document.getElementById("lConta");
+        tbody.innerHTML = ""; select.innerHTML = "";
+        Object.entries(data).sort((a,b) => a[1].cod.localeCompare(b[1].cod)).forEach(([id, p]) => {
+            tbody.innerHTML += `<tr><td>${p.cod}</td><td>${p.nome}</td><td><small>${p.tipo}</small></td>
+                <td><i class="fas fa-trash-alt btn-del" onclick="deletePlano('${id}')"></i></td></tr>`;
+            select.innerHTML += `<option value="${id}">${p.cod} - ${p.nome}</option>`;
+        });
+    }
+
+    function deletePlano(id) {
+        if(confirm("Deseja excluir esta conta do plano definitivamente?")) db.ref(`plano_contas/${id}`).remove();
+    }
+
+    // --- FUNÇÕES DE LANÇAMENTOS ---
+    function saveLancamento() {
+        const val = parseFloat(document.getElementById("lVal").value);
+        const desc = document.getElementById("lDesc").value;
+        const cid = document.getElementById("lConta").value;
         if(!val || !desc) return alert("Preencha valor e descrição");
 
-        const p = PLANO[document.getElementById("fCat").value];
-        const novaData = {
-            data: document.getElementById("fDate").value,
-            desc: desc,
-            valor: val,
-            tipo: p.t,
-            cat: p.cat,
-            nomeCat: p.n,
-            cod: p.c
-        };
-
-        db.ref('movimentacoes').push(novaData);
-        alert("Salvo com sucesso!");
-        document.getElementById("fVal").value = "";
-        document.getElementById("fDesc").value = "";
+        db.ref('plano_contas/'+cid).once('value', s => {
+            const p = s.val();
+            db.ref('lancamentos').push({
+                data: document.getElementById("lDate").value,
+                desc,
+                valor: val,
+                contaCod: p.cod,
+                contaNome: p.nome,
+                tipo: p.tipo
+            });
+            document.getElementById("lVal").value = "";
+            document.getElementById("lDesc").value = "";
+        });
     }
 
-    function updateUI() {
-        const items = Object.entries(dbData).map(([id, val]) => ({id, ...val}));
-        items.sort((a,b) => b.data.localeCompare(a.data));
-
-        // Totais Painel
-        const rec = items.filter(i => i.tipo === 'entrada').reduce((a, b) => a + b.valor, 0);
-        const desp = items.filter(i => i.tipo === 'saida').reduce((a, b) => a + b.valor, 0);
-        document.getElementById("sumRec").innerText = `R$ ${rec.toLocaleString('pt-br', {minimumFractionDigits:2})}`;
-        document.getElementById("sumDesp").innerText = `R$ ${desp.toLocaleString('pt-br', {minimumFractionDigits:2})}`;
-
-        // Tabela Extrato
-        const fMes = document.getElementById("filterMonth").value;
-        const fTipo = document.getElementById("filterType").value;
-        
-        let filtrados = items.filter(i => i.data.startsWith(fMes));
-        if(fTipo !== 'all') filtrados = filtrados.filter(i => i.tipo === fTipo);
-
-        const tbody = document.querySelector("#mainTable tbody");
-        tbody.innerHTML = filtrados.map(i => `
-            <tr>
-                <td>${i.data.split('-').reverse().slice(0,2).join('/')}</td>
-                <td><strong>${i.desc}</strong><br><small>${i.nomeCat}</small></td>
-                <td style="color:${i.tipo === 'entrada' ? 'var(--success)' : 'var(--danger)'}">
-                    ${i.tipo === 'entrada' ? '' : '-'}R$ ${i.valor.toFixed(2)}
-                </td>
-                <td><i class="fas fa-trash" onclick="deleteItem('${i.id}')" style="color:#ccc"></i></td>
-            </tr>
-        `).join('');
-
-        renderChart(items);
+    function renderLancamentosUI(data) {
+        const tbody = document.querySelector("#tableLanc tbody");
+        tbody.innerHTML = ""; if(!data) return;
+        Object.entries(data).sort((a,b) => b[1].data.localeCompare(a[1].data)).forEach(([id, l]) => {
+            const cor = l.tipo === 'REC' ? 'green' : 'red';
+            tbody.innerHTML += `<tr>
+                <td>${l.data.split('-').reverse().slice(0,2).join('/')}</td>
+                <td><strong>${l.desc}</strong><br><small>${l.contaNome}</small></td>
+                <td style="color:${cor}; font-weight:bold">R$ ${l.valor.toFixed(2)}</td>
+                <td><i class="fas fa-times btn-del" onclick="deleteLanc('${id}')"></i></td>
+            </tr>`;
+        });
     }
 
-    function deleteItem(id) {
-        if(confirm("Excluir lançamento?")) db.ref(`movimentacoes/${id}`).remove();
+    function deleteLanc(id) {
+        if(confirm("Excluir este lançamento?")) db.ref(`lancamentos/${id}`).remove();
     }
 
-    let myChart;
-    function renderChart(items) {
-        const ctx = document.getElementById('flowChart').getContext('2d');
+    // --- DASHBOARD LÓGICA ---
+    function renderDashboard() {
+        const mesFiltro = document.getElementById("dashMes").value;
+        const modo = document.getElementById("dashAno").value;
+        const anoFiltro = mesFiltro.split('-')[0];
+
+        db.ref('lancamentos').once('value', snap => {
+            const totalData = snap.val() || {};
+            const items = Object.values(totalData).filter(l => {
+                if(modo === 'ano') return l.data.startsWith(anoFiltro);
+                return l.data.startsWith(mesFiltro);
+            });
+
+            const rec = items.filter(i => i.tipo === 'REC').reduce((a,b) => a + b.valor, 0);
+            const gastos = items.filter(i => i.tipo !== 'REC').reduce((a,b) => a + b.valor, 0);
+            
+            document.getElementById("statRec").innerText = `R$ ${rec.toFixed(2)}`;
+            document.getElementById("statGasto").innerText = `R$ ${gastos.toFixed(2)}`;
+            document.getElementById("statLucro").innerText = `R$ ${(rec - gastos).toFixed(2)}`;
+
+            updateChart(rec, gastos);
+        });
+    }
+
+    function updateChart(entrada, saida) {
+        const ctx = document.getElementById('chartGeral').getContext('2d');
         if(myChart) myChart.destroy();
-
-        // Lógica simples de agrupamento por mês para o gráfico
-        const meses = [...new Set(items.map(i => i.data.slice(0,7)))].sort().slice(-6);
-        const dataRec = meses.map(m => items.filter(i => i.data.startsWith(m) && i.tipo === 'entrada').reduce((a,b)=>a+b.valor,0));
-        const dataDesp = meses.map(m => items.filter(i => i.data.startsWith(m) && i.tipo === 'saida').reduce((a,b)=>a+b.valor,0));
-
         myChart = new Chart(ctx, {
-            type: 'line',
+            type: 'doughnut',
             data: {
-                labels: meses.map(m => m.split('-').reverse().join('/')),
-                datasets: [
-                    { label: 'Entradas', data: dataRec, borderColor: '#27ae60', tension: 0.3, fill: false },
-                    { label: 'Saídas', data: dataDesp, borderColor: '#c0392b', tension: 0.3, fill: false }
-                ]
+                labels: ['Entradas', 'Saídas'],
+                datasets: [{
+                    data: [entrada,予以 saida],
+                    backgroundColor: ['#27ae60', '#c0392b'],
+                    borderWidth: 0
+                }]
             },
             options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
     }
 
-    function renderDRE() {
-        const mes = document.getElementById("dreMonth").value;
-        const items = Object.values(dbData).filter(i => i.data.startsWith(mes));
-
-        const r_bruta = items.filter(i => i.cat === 'REC').reduce((a,b) => a + b.valor, 0);
-        const impostos = items.filter(i => i.cat === 'IMP').reduce((a,b) => a + b.valor, 0);
-        const r_liquida = r_bruta - impostos;
-        const custos = items.filter(i => i.cat === 'CUSTO').reduce((a,b) => a + b.valor, 0);
-        const m_contrib = r_liquida - custos;
-        const despesas = items.filter(i => i.cat === 'DESP').reduce((a,b) => a + b.valor, 0);
-        const lucro = m_contrib - despesas;
-
-        document.getElementById("dreArea").innerHTML = `
-            <div class="dre-row"><span>(+) Receita Operacional Bruta</span><strong>R$ ${r_bruta.toFixed(2)}</strong></div>
-            <div class="dre-row" style="color:var(--danger)"><span>(-) Impostos s/ Vendas</span><strong>R$ ${impostos.toFixed(2)}</strong></div>
-            <div class="dre-row" style="background:#f9f9f9"><span>(=) RECEITA LÍQUIDA</span><strong>R$ ${r_liquida.toFixed(2)}</strong></div>
-            <div class="dre-row" style="color:var(--danger)"><span>(-) Custos (Peças/M.O)</span><strong>R$ ${custos.toFixed(2)}</strong></div>
-            <div class="dre-row" style="background:#f9f9f9"><span>(=) MARGEM DE CONTRIBUIÇÃO</span><strong>R$ ${m_contrib.toFixed(2)}</strong></div>
-            <div class="dre-row" style="color:var(--danger)"><span>(-) Despesas Fixas/Adm</span><strong>R$ ${despesas.toFixed(2)}</strong></div>
-            <div class="dre-total"><span>(=) LUCRO LÍQUIDO FINAL</span><strong>R$ ${lucro.toFixed(2)}</strong></div>
-        `;
-    }
-
-    // Navegação
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(btn.dataset.tab).classList.add('active');
-        };
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => {
+        document.querySelectorAll('.tab-btn, .tab-content').forEach(e => e.classList.remove('active'));
+        b.classList.add('active');
+        document.getElementById(b.dataset.tab).classList.add('active');
+        if(b.dataset.tab === 'tab-dash') renderDashboard();
     });
 </script>
 </body>
