@@ -3,125 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Cryotronics ERP - Acesso Direto</title>
+    <title>Cryotronics ERP - Plano de Contas Completo</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        :root { --primary: #0b2b40; --success: #27ae60; --danger: #c0392b; --light: #f4f7f6; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--light); padding-bottom: 50px; }
-        header { background: var(--primary); color: white; padding: 15px; text-align: center; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 15px; }
+        :root {
+            --primary: #0b2b40;
+            --secondary: #1c4e63;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --warning: #f39c12;
+            --info: #2980b9;
+            --light: #f4f7f6;
+            --dark: #2c3e50;
+        }
 
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; overflow-x: auto; position: sticky; top: 0; z-index: 100; background: var(--light); padding: 10px 0; }
-        .tab-btn { background: white; border: 1px solid #ddd; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; min-width: 100px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: var(--light); color: var(--dark); padding-bottom: 40px; }
+        
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .container { max-width: 1100px; margin: 0 auto; padding: 10px; }
+
+        /* Menu de Navegação */
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; sticky: top; background: var(--light); padding: 5px 0; z-index: 100; }
+        .tab-btn { background: white; border: 1px solid #ddd; padding: 12px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; min-width: 120px; transition: 0.3s; color: var(--primary); }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        h3 { font-size: 1.1rem; margin-bottom: 15px; color: var(--primary); }
+        /* Cards */
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-top: 4px solid var(--primary); }
+        h3 { font-size: 1.1rem; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         
+        /* Formulários */
+        .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #444; }
-        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #555; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.95rem; outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--info); }
         
-        .btn { border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; display: block; }
+        .btn { border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; width: 100%; }
         .btn-add { background: var(--success); color: white; }
-        .btn-del { color: var(--danger); background: none; border: none; cursor: pointer; width: auto; display: inline; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; font-size: 0.75rem; color: #888; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .btn-export { background: var(--secondary); color: white; margin-top: 10px; }
+        .btn-del { color: var(--danger); background: none; border: none; cursor: pointer; font-size: 1.1rem; }
+        .btn-del:hover { transform: scale(1.2); }
 
-        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .stat-box { padding: 15px; border-radius: 12px; color: white; text-align: center; }
-        .stat-box p { font-size: 1.1rem; font-weight: bold; margin-top: 5px; }
+        /* Tabelas */
+        .table-res { overflow-x: auto; width: 100%; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 600px; }
+        th { text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #888; font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; vertical-align: middle; }
+        tr:hover { background-color: #fcfcfc; }
 
-        .tab-content { display: none; }
+        /* Dashboard */
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-box { padding: 20px; border-radius: 12px; color: white; text-align: center; position: relative; overflow: hidden; }
+        .stat-box i { position: absolute; right: 10px; bottom: 10px; font-size: 3rem; opacity: 0.2; }
+        .stat-box h4 { font-size: 0.8rem; text-transform: uppercase; opacity: 0.9; }
+        .stat-box p { font-size: 1.4rem; font-weight: bold; margin-top: 5px; }
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Filtros */
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 15px; }
+        .filter-item { flex: 1; min-width: 150px; }
+
+        /* Badges */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+        .bg-REC { background: #d4edda; color: #155724; }
+        .bg-CUSTO, .bg-DESP, .bg-IMP { background: #f8d7da; color: #721c24; }
+        .bg-ATV { background: #d1ecf1; color: #0c5460; }
+        .bg-PAS { background: #fff3cd; color: #856404; }
+
+        @media (max-width: 600px) {
+            .grid-form { grid-template-columns: 1fr; }
+            .stat-box p { font-size: 1.1rem; }
+        }
     </style>
 </head>
-<body onload="start()">
+<body onload="initializeApp()">
 
 <header>
-    <h2>Cryotronics Cloud</h2>
+    <h1><i class="fas fa-snowflake"></i> CRYOTRONICS CLOUD</h1>
+    <small>Sistema de Gestão Financeira e Plano de Contas</small>
 </header>
 
 <div class="container">
     <nav class="tabs">
-        <button class="tab-btn active" data-tab="tab-dash">Dashboard</button>
-        <button class="tab-btn" data-tab="tab-lanc">Lançamentos</button>
-        <button class="tab-btn" data-tab="tab-plano">Plano de Contas</button>
+        <button class="tab-btn active" data-tab="tab-dash"><i class="fas fa-chart-line"></i> Dashboard</button>
+        <button class="tab-btn" data-tab="tab-lanc"><i class="fas fa-exchange-alt"></i> Lançamentos</button>
+        <button class="tab-btn" data-tab="tab-plano"><i class="fas fa-sitemap"></i> Plano de Contas</button>
     </nav>
 
     <div id="tab-dash" class="tab-content active">
         <div class="card">
-            <div style="display: flex; gap: 10px;">
-                <input type="month" id="dashMes" onchange="renderDashboard()">
-                <select id="dashModo" onchange="renderDashboard()">
-                    <option value="mes">Mês Atual</option>
-                    <option value="ano">Ano Todo</option>
-                </select>
+            <h3><i class="fas fa-filter"></i> Analisar Período</h3>
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <label>Mês de Referência</label>
+                    <input type="month" id="dashMes" onchange="loadDashboard()">
+                </div>
+                <div class="filter-item">
+                    <label>Escopo</label>
+                    <select id="dashModo" onchange="loadDashboard()">
+                        <option value="mes">Somente este mês</option>
+                        <option value="ano">Ano Completo</option>
+                    </select>
+                </div>
+                <div class="filter-item" style="flex: 0.5;">
+                    <button class="btn btn-export" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Exportar</button>
+                </div>
             </div>
         </div>
 
         <div class="grid-stats">
-            <div class="stat-box" style="background:var(--success)"><h4>Entradas</h4><p id="statRec">R$ 0,00</p></div>
-            <div class="stat-box" style="background:var(--danger)"><h4>Saídas</h4><p id="statGasto">R$ 0,00</p></div>
-            <div class="stat-box" style="background:var(--primary)"><h4>Lucro</h4><p id="statLucro">R$ 0,00</p></div>
+            <div class="stat-box" style="background:var(--success)">
+                <h4>Entradas (Receitas)</h4>
+                <p id="statRec">R$ 0,00</p>
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="stat-box" style="background:var(--danger)">
+                <h4>Saídas (Custos/Desp)</h4>
+                <p id="statGas">R$ 0,00</p>
+                <i class="fas fa-arrow-down"></i>
+            </div>
+            <div class="stat-box" style="background:var(--info)">
+                <h4>Lucro Operacional</h4>
+                <p id="statLucro">R$ 0,00</p>
+                <i class="fas fa-wallet"></i>
+            </div>
         </div>
 
         <div class="card">
-            <canvas id="chartGeral" height="250"></canvas>
+            <h3><i class="fas fa-chart-pie"></i> Composição do Resultado</h3>
+            <canvas id="chartGeral" height="280"></canvas>
         </div>
     </div>
 
     <div id="tab-lanc" class="tab-content">
         <div class="card">
-            <h3>Novo Lançamento</h3>
-            <div class="form-group"><label>Data</label><input type="date" id="lDate"></div>
-            <div class="form-group"><label>Descrição</label><input type="text" id="lDesc"></div>
-            <div class="form-group"><label>Conta</label><select id="lConta"></select></div>
-            <div class="form-group"><label>Valor R$</label><input type="number" step="0.01" id="lVal"></div>
-            <button onclick="saveLancamento()" class="btn btn-add">SALVAR</button>
+            <h3><i class="fas fa-plus-circle"></i> Novo Lançamento</h3>
+            <div class="grid-form">
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="lDate">
+                </div>
+                <div class="form-group">
+                    <label>Descrição / Projeto</label>
+                    <input type="text" id="lDesc" placeholder="Ex: Manutenção Frota Bradesco">
+                </div>
+                <div class="form-group">
+                    <label>Conta do Plano</label>
+                    <select id="lConta"></select>
+                </div>
+                <div class="form-group">
+                    <label>Valor R$</label>
+                    <input type="number" step="0.01" id="lVal" placeholder="0.00">
+                </div>
+            </div>
+            <button onclick="saveLancamento()" class="btn btn-add"><i class="fas fa-save"></i> SALVAR LANÇAMENTO</button>
         </div>
-        <div class="card" style="overflow-x:auto;">
-            <table id="tableLanc">
-                <thead><tr><th>Data</th><th>Conta</th><th>Valor</th><th></th></tr></thead>
-                <tbody></tbody>
-            </table>
+
+        <div class="card">
+            <h3><i class="fas fa-history"></i> Histórico Recente</h3>
+            <div class="table-res">
+                <table id="tableLanc">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Conta</th>
+                            <th>Valor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <div id="tab-plano" class="tab-content">
         <div class="card">
-            <h3>Nova Conta no Plano</h3>
-            <div class="form-group"><label>Código</label><input type="text" id="pCod"></div>
-            <div class="form-group"><label>Nome da Conta</label><input type="text" id="pNome"></div>
-            <div class="form-group">
-                <label>Tipo</label>
-                <select id="pTipo">
-                    <option value="REC">Receita</option>
-                    <option value="IMP">Imposto</option>
-                    <option value="CUSTO">Custo</option>
-                    <option value="DESP">Despesa</option>
-                </select>
+            <h3><i class="fas fa-edit"></i> Personalizar Plano de Contas</h3>
+            <div class="grid-form">
+                <div class="form-group">
+                    <label>Código Contábil</label>
+                    <input type="text" id="pCod" placeholder="Ex: 3.1.1.05">
+                </div>
+                <div class="form-group">
+                    <label>Nome da Conta</label>
+                    <input type="text" id="pNome" placeholder="Ex: Manutenção Preventiva">
+                </div>
+                <div class="form-group">
+                    <label>Categoria DRE</label>
+                    <select id="pTipo">
+                        <option value="ATV">Ativo (Patrimonial)</option>
+                        <option value="PAS">Passivo (Obrigações)</option>
+                        <option value="REC">Receita (Entrada)</option>
+                        <option value="IMP">Imposto (Saída)</option>
+                        <option value="CUSTO">Custo (Produção)</option>
+                        <option value="DESP">Despesa (Fixa/Adm)</option>
+                    </select>
+                </div>
             </div>
-            <button onclick="savePlano()" class="btn btn-add">ADICIONAR</button>
+            <button onclick="savePlano()" class="btn btn-add"><i class="fas fa-plus"></i> INCLUIR NO PLANO</button>
         </div>
-        <div class="card" style="overflow-x:auto;">
-            <table id="tablePlano">
-                <thead><tr><th>Código</th><th>Descrição</th><th></th></tr></thead>
-                <tbody></tbody>
-            </table>
+
+        <div class="card">
+            <h3><i class="fas fa-stream"></i> Estrutura Atual</h3>
+            <div class="table-res">
+                <table id="tablePlano">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descrição da Conta</th>
+                            <th>Tipo</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+    // 1. CONFIGURAÇÃO FIREBASE (Substitua se necessário, mas estas chaves são as que você forneceu)
     const firebaseConfig = {
         apiKey: "AIzaSyByKC9bZlxKORGveQYcNtEjox5ewxrwH2c",
         authDomain: "cryoges.firebaseapp.com",
@@ -131,88 +245,235 @@
         messagingSenderId: "272383154652",
         appId: "1:272383154652:web:9bd1ebd415243f22b39719"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     let myChart = null;
 
-    function start() {
+    // 2. PLANO DE CONTAS INICIAL (CONFORME SOLICITADO)
+    const DEFAULT_PLANO = [
+        // ATIVOS
+        {cod: "1.1.1.01", nome: "Caixa Geral Cartão", tipo: "ATV"},
+        {cod: "1.1.1.02", nome: "Fundo de caixa (dinheiro em espécie)", tipo: "ATV"},
+        {cod: "1.1.3.01", nome: "Estoque Mercadorias", tipo: "ATV"},
+        {cod: "1.3.3.04", nome: "Veículos", tipo: "ATV"},
+        // PASSIVOS
+        {cod: "2.1.3.01", nome: "SIMPLES NACIONAL (DAS e Honorários)", tipo: "IMP"},
+        {cod: "2.1.4.01", nome: "Salários a Pagar", tipo: "PAS"},
+        {cod: "2.1.5.04", nome: "Aluguel a Pagar", tipo: "PAS"},
+        // RECEITAS
+        {cod: "3.1.1.01", nome: "Venda de Produtos", tipo: "REC"},
+        {cod: "3.1.1.03", nome: "Venda de Serviços (Frotas)", tipo: "REC"},
+        // CUSTOS E DESPESAS
+        {cod: "3.2.1.01", nome: "Custos dos Insumos", tipo: "CUSTO"},
+        {cod: "3.2.1.02", nome: "Custos da Mão de Obra", tipo: "CUSTO"},
+        {cod: "3.2.2.01", nome: "Despesas Administrativas", tipo: "DESP"},
+        {cod: "3.2.2.02", nome: "Despesas com Viagens", tipo: "DESP"},
+        {cod: "3.2.2.03", nome: "Despesas com honorários contabilidade", tipo: "DESP"},
+        {cod: "3.2.2.05", nome: "Despesas com frete", tipo: "DESP"}
+    ];
+
+    // 3. INICIALIZAÇÃO
+    function initializeApp() {
         document.getElementById("lDate").valueAsDate = new Date();
         document.getElementById("dashMes").value = new Date().toISOString().slice(0, 7);
 
-        db.ref('plano_contas').on('value', snap => renderPlano(snap.val()));
-        db.ref('lancamentos').on('value', snap => {
-            renderLancamentos(snap.val());
-            renderDashboard();
+        // Listener do Plano de Contas
+        db.ref('plano_contas').on('value', snap => {
+            const data = snap.val();
+            if (!data) {
+                // Se estiver vazio, popula com o padrão
+                DEFAULT_PLANO.forEach(p => db.ref('plano_contas').push(p));
+            } else {
+                renderPlanoUI(data);
+            }
         });
+
+        // Listener dos Lançamentos
+        db.ref('lancamentos').on('value', snap => {
+            renderLancamentosUI(snap.val());
+            loadDashboard();
+        });
+
+        setupTabs();
     }
 
+    // 4. GESTÃO DO PLANO DE CONTAS
     function savePlano() {
-        const cod = document.getElementById("pCod").value;
-        const nome = document.getElementById("pNome").value;
+        const cod = document.getElementById("pCod").value.trim();
+        const nome = document.getElementById("pNome").value.trim();
         const tipo = document.getElementById("pTipo").value;
-        if(cod && nome) db.ref('plano_contas').push({cod, nome, tipo});
+
+        if (!cod || !nome) return alert("Preencha código e nome da conta.");
+
+        db.ref('plano_contas').push({ cod, nome, tipo });
+        document.getElementById("pCod").value = "";
+        document.getElementById("pNome").value = "";
+        alert("Conta adicionada ao plano!");
     }
 
-    function renderPlano(data) {
+    function renderPlanoUI(data) {
         const tbody = document.querySelector("#tablePlano tbody");
         const select = document.getElementById("lConta");
-        tbody.innerHTML = ""; select.innerHTML = "";
-        if(!data) return;
-        Object.entries(data).sort((a,b) => a[1].cod.localeCompare(b[1].cod)).forEach(([id, p]) => {
-            tbody.innerHTML += `<tr><td>${p.cod}</td><td>${p.nome}</td><td><button class="btn-del" onclick="deletePlano('${id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+        tbody.innerHTML = "";
+        select.innerHTML = '<option value="">Selecione uma conta...</option>';
+
+        // Ordenar por código contábil
+        const items = Object.entries(data).sort((a,b) => a[1].cod.localeCompare(b[1].cod, undefined, {numeric: true}));
+
+        items.forEach(([id, p]) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${p.cod}</strong></td>
+                    <td>${p.nome}</td>
+                    <td><span class="badge bg-${p.tipo}">${p.tipo}</span></td>
+                    <td><button class="btn-del" onclick="deletePlano('${id}')"><i class="fas fa-trash-alt"></i></button></td>
+                </tr>`;
+            
             select.innerHTML += `<option value="${id}">${p.cod} - ${p.nome}</option>`;
         });
     }
 
-    function deletePlano(id) { if(confirm("Excluir conta?")) db.ref(`plano_contas/${id}`).remove(); }
+    function deletePlano(id) {
+        if (confirm("Tem certeza que deseja excluir esta conta do plano? Lançamentos vinculados podem ficar sem categoria.")) {
+            db.ref(`plano_contas/${id}`).remove();
+        }
+    }
 
+    // 5. GESTÃO DE LANÇAMENTOS
     function saveLancamento() {
+        const date = document.getElementById("lDate").value;
+        const desc = document.getElementById("lDesc").value.trim();
+        const contaId = document.getElementById("lConta").value;
         const val = parseFloat(document.getElementById("lVal").value);
-        const desc = document.getElementById("lDesc").value;
-        const cid = document.getElementById("lConta").value;
-        if(!val || !desc) return;
-        db.ref('plano_contas/'+cid).once('value', s => {
-            const p = s.val();
-            db.ref('lancamentos').push({data: document.getElementById("lDate").value, desc, valor: val, contaNome: p.nome, tipo: p.tipo});
-            document.getElementById("lVal").value = ""; document.getElementById("lDesc").value = "";
+
+        if (!date || !desc || !contaId || isNaN(val)) return alert("Preencha todos os campos do lançamento.");
+
+        db.ref('plano_contas/' + contaId).once('value', snap => {
+            const conta = snap.val();
+            db.ref('lancamentos').push({
+                data: date,
+                desc: desc,
+                valor: val,
+                contaNome: conta.nome,
+                contaCod: conta.cod,
+                tipo: conta.tipo,
+                projeto: desc // Usamos a descrição como projeto para o filtro
+            });
+            document.getElementById("lVal").value = "";
+            document.getElementById("lDesc").value = "";
         });
     }
 
-    function renderLancamentos(data) {
+    function renderLancamentosUI(data) {
         const tbody = document.querySelector("#tableLanc tbody");
-        tbody.innerHTML = ""; if(!data) return;
-        Object.entries(data).sort((a,b) => b[1].data.localeCompare(a[1].data)).forEach(([id, l]) => {
-            const cor = l.tipo === 'REC' ? 'green' : 'red';
-            tbody.innerHTML += `<tr><td>${l.data.split('-').reverse().slice(0,2).join('/')}</td><td>${l.desc}</td><td style="color:${cor}">R$ ${l.valor.toFixed(2)}</td><td><button class="btn-del" onclick="deleteLanc('${id}')"><i class="fas fa-times"></i></button></td></tr>`;
+        tbody.innerHTML = "";
+        if (!data) return;
+
+        const items = Object.entries(data).sort((a,b) => b[1].data.localeCompare(a[1].data));
+
+        items.forEach(([id, l]) => {
+            const color = l.tipo === 'REC' ? 'green' : 'red';
+            const sinal = l.tipo === 'REC' ? '' : '- ';
+            tbody.innerHTML += `
+                <tr>
+                    <td>${l.data.split('-').reverse().join('/')}</td>
+                    <td><strong>${l.desc}</strong></td>
+                    <td><small>${l.contaCod}</small><br>${l.contaNome}</td>
+                    <td style="color:${color}; font-weight:bold">${sinal}R$ ${l.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                    <td><button class="btn-del" onclick="deleteLancamento('${id}')"><i class="fas fa-times"></i></button></td>
+                </tr>`;
         });
     }
 
-    function deleteLanc(id) { db.ref(`lancamentos/${id}`).remove(); }
+    function deleteLancamento(id) {
+        if (confirm("Deseja excluir este lançamento definitivamente?")) {
+            db.ref(`lancamentos/${id}`).remove();
+        }
+    }
 
-    function renderDashboard() {
-        const mesFiltro = document.getElementById("dashMes").value;
+    // 6. DASHBOARD E ANALYTICS
+    function loadDashboard() {
+        const mesRef = document.getElementById("dashMes").value;
         const modo = document.getElementById("dashModo").value;
+
         db.ref('lancamentos').once('value', snap => {
-            const items = Object.values(snap.val() || {}).filter(l => modo === 'ano' ? l.data.startsWith(mesFiltro.split('-')[0]) : l.data.startsWith(mesFiltro));
-            const rec = items.filter(i => i.tipo === 'REC').reduce((a,b) => a + b.valor, 0);
-            const gas = items.filter(i => i.tipo !== 'REC').reduce((a,b) => a + b.valor, 0);
-            document.getElementById("statRec").innerText = "R$ "+rec.toFixed(2);
-            document.getElementById("statGasto").innerText = "R$ "+gas.toFixed(2);
-            document.getElementById("statLucro").innerText = "R$ "+(rec-gas).toFixed(2);
-            updateChart(rec, gas);
+            const data = snap.val() || {};
+            const items = Object.values(data).filter(l => {
+                if (modo === 'ano') return l.data.startsWith(mesRef.split('-')[0]);
+                return l.data.startsWith(mesRef);
+            });
+
+            const receitas = items.filter(i => i.tipo === 'REC').reduce((a, b) => a + b.valor, 0);
+            const gastos = items.filter(i => ['CUSTO', 'DESP', 'IMP'].includes(i.tipo)).reduce((a, b) => a + b.valor, 0);
+            const lucro = receitas - gastos;
+
+            document.getElementById("statRec").innerText = `R$ ${receitas.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+            document.getElementById("statGas").innerText = `R$ ${gastos.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+            document.getElementById("statLucro").innerText = `R$ ${lucro.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+            document.getElementById("statLucro").parentElement.style.background = lucro >= 0 ? 'var(--info)' : 'var(--danger)';
+
+            updateChart(receitas, gastos);
         });
     }
 
-    function updateChart(e, s) {
+    function updateChart(rec, gas) {
         const ctx = document.getElementById('chartGeral').getContext('2d');
-        if(myChart) myChart.destroy();
-        myChart = new Chart(ctx, { type: 'pie', data: { labels: ['Entradas', 'Saídas'], datasets: [{ data: [e, s], backgroundColor: ['#27ae60', '#c0392b'] }] } });
+        if (myChart) myChart.destroy();
+
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Entradas', 'Saídas'],
+                datasets: [{
+                    label: 'Movimentação R$',
+                    data: [rec, gas],
+                    backgroundColor: ['#27ae60', '#c0392b'],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
     }
 
-    document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => {
-        document.querySelectorAll('.tab-btn, .tab-content').forEach(e => e.classList.remove('active'));
-        b.classList.add('active'); document.getElementById(b.dataset.tab).classList.add('active');
-    });
+    // 7. EXPORTAÇÃO
+    function exportToExcel() {
+        db.ref('lancamentos').once('value', snap => {
+            const data = snap.val();
+            if(!data) return alert("Não há dados para exportar");
+            
+            const list = Object.values(data).map(l => ({
+                Data: l.data,
+                Descricao: l.desc,
+                Codigo: l.contaCod,
+                Conta: l.contaNome,
+                Tipo: l.tipo,
+                Valor: l.valor
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(list);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Lancamentos");
+            XLSX.writeFile(wb, `Cryotronics_Relatorio_${new Date().getTime()}.xlsx`);
+        });
+    }
+
+    // 8. UTILITÁRIOS
+    function setupTabs() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+                if (btn.dataset.tab === 'tab-dash') loadDashboard();
+            };
+        });
+    }
 </script>
 </body>
 </html>
