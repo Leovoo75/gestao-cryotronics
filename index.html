@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CryoERP">
     <meta name="theme-color" content="#0b2b40">
-    <title>Gestão Financeira Cryotronics</title>
+    <title>Cryotronics ERP - Sistema Financeiro</title>
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -20,9 +20,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #f0f2f5; min-height: 100vh; }
-
+        
         .header {
             background: linear-gradient(135deg, #0b2b40 0%, #1c4e63 100%);
             color: white;
@@ -43,10 +43,9 @@
             border-radius: 20px;
             cursor: pointer;
         }
-        .platform-badge:hover { background: rgba(255,255,255,0.3); }
         .sync-status { text-align: center; font-size: 0.6rem; margin-top: 5px; color: #2ecc71; }
         .container { max-width: 1400px; margin: 0 auto; padding: 12px; padding-bottom: 70px; }
-
+        
         .tabs {
             display: flex;
             gap: 5px;
@@ -55,7 +54,6 @@
             background: white;
             padding: 8px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             position: sticky;
             top: 70px;
             z-index: 99;
@@ -67,7 +65,6 @@
             border-radius: 30px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -80,7 +77,7 @@
         .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        
         .card {
             background: white;
             border-radius: 16px;
@@ -99,7 +96,7 @@
             border-left: 3px solid #0b2b40;
             padding-left: 10px;
         }
-
+        
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -109,6 +106,7 @@
         .form-group { display: flex; flex-direction: column; }
         .form-group label { font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; color: #495057; }
         input, select, textarea { padding: 10px 12px; border: 1px solid #ced4da; border-radius: 10px; font-size: 14px; }
+        
         button {
             background: #0b2b40;
             color: white;
@@ -117,7 +115,6 @@
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -132,7 +129,7 @@
         .btn-warning { background: #f39c12; }
         .btn-exclude { background: #e67e22; }
         .btn-excluded { background: #95a5a6; }
-
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -148,26 +145,17 @@
             overflow: hidden;
         }
         .stat-card i { position: absolute; right: 10px; bottom: 10px; font-size: 2.5rem; opacity: 0.2; }
-        .stat-card h4 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .stat-card h4 { font-size: 0.7rem; text-transform: uppercase; margin-bottom: 8px; }
         .stat-card .value { font-size: 1.3rem; font-weight: bold; }
         .stat-card.santos { background: linear-gradient(135deg, #2980b9, #3498db); }
         .stat-card.camacari { background: linear-gradient(135deg, #e67e22, #f39c12); }
         .stat-card.total { background: linear-gradient(135deg, #27ae60, #2ecc71); }
-
-        .dre-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
-        .dre-card {
-            background: white;
-            border-radius: 16px;
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border-top: 4px solid #27ae60;
-        }
-
-        .table-container { overflow-x: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+        
+        .table-container { overflow-x: auto; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; font-size: 0.75rem; min-width: 500px; }
         th, td { padding: 10px 8px; border-bottom: 1px solid #e9ecef; text-align: left; }
         th { background: #f8f9fa; font-weight: 600; }
-
+        
         .badge {
             display: inline-block;
             padding: 3px 8px;
@@ -179,15 +167,13 @@
         .badge-despesa { background: #f8d7da; color: #721c24; }
         .badge-santos { background: #d1ecf1; color: #0c5460; }
         .badge-camacari { background: #fff3cd; color: #856404; }
-        .badge-interno { background: #cce5ff; color: #004085; }
-        .badge-externo { background: #d4edda; color: #155724; }
         .badge-excluded { background: #e9ecef; color: #6c757d; text-decoration: line-through; }
-
+        
         .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: flex-end; }
         .filter-item { flex: 1; min-width: 150px; }
         .chart-container { max-height: 300px; margin: 15px 0; }
         canvas { max-height: 250px; width: 100%; }
-
+        
         .multi-select {
             border: 1px solid #ced4da;
             border-radius: 10px;
@@ -196,10 +182,9 @@
             overflow-y: auto;
             background: white;
         }
-        .multi-select label { display: flex; align-items: center; gap: 8px; padding: 5px 8px; cursor: pointer; font-size: 0.8rem; margin: 0; }
+        .multi-select label { display: flex; align-items: center; gap: 8px; padding: 5px 8px; cursor: pointer; font-size: 0.8rem; }
         .multi-select label:hover { background: #f0f2f5; }
-        .multi-select input { width: auto; margin: 0; }
-
+        
         #authOverlay {
             position: fixed;
             top: 0;
@@ -209,7 +194,6 @@
             background: linear-gradient(135deg, #0b2b40, #1c4e63);
             z-index: 9999;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
@@ -223,7 +207,7 @@
             min-width: 280px;
         }
         .auth-box input { width: 100%; margin: 10px 0; text-align: center; }
-
+        
         .toast {
             position: fixed;
             bottom: 20px;
@@ -237,7 +221,6 @@
             font-size: 0.8rem;
             white-space: nowrap;
         }
-
         .modal {
             display: none;
             position: fixed;
@@ -256,16 +239,6 @@
             padding: 25px;
             max-width: 500px;
             width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .file-input-area {
-            border: 2px dashed #ced4da;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 15px;
-            cursor: pointer;
         }
         .total-soma {
             background: #e9ecef;
@@ -274,9 +247,8 @@
             font-weight: bold;
             text-align: right;
             margin-top: 15px;
-            font-size: 0.9rem;
         }
-
+        
         @media (max-width: 768px) {
             .form-grid, .stats-grid { grid-template-columns: 1fr; }
             .filter-bar { flex-direction: column; }
@@ -289,44 +261,31 @@
 <div id="authOverlay">
     <div class="auth-box">
         <i class="fas fa-snowflake" style="font-size: 2.5rem; margin-bottom: 15px;"></i>
-        <h2>Gestão Financeira Cryotronics</h2>
+        <h2>Cryotronics ERP</h2>
         <input type="password" id="pinInput" placeholder="Senha" autocomplete="off">
         <button onclick="login()" style="width: 100%;"><i class="fas fa-lock"></i> Acessar</button>
         <button onclick="openChangePasswordModal()" style="width: 100%; margin-top: 10px; background: #f39c12;"><i class="fas fa-key"></i> Alterar Senha</button>
     </div>
 </div>
 
-<!-- Modal Alterar Senha -->
 <div id="changePasswordModal" class="modal">
     <div class="modal-content">
-        <h3><i class="fas fa-key"></i> Alterar Senha</h3>
-        <div class="form-group">
-            <label>Senha Atual</label>
-            <input type="password" id="currentPassword" placeholder="Digite a senha atual">
-        </div>
-        <div class="form-group">
-            <label>Nova Senha</label>
-            <input type="password" id="newPassword" placeholder="Digite a nova senha">
-        </div>
-        <div class="form-group">
-            <label>Confirmar Nova Senha</label>
-            <input type="password" id="confirmPassword" placeholder="Confirme a nova senha">
-        </div>
+        <h3>Alterar Senha</h3>
+        <div class="form-group"><label>Senha Atual</label><input type="password" id="currentPassword"></div>
+        <div class="form-group"><label>Nova Senha</label><input type="password" id="newPassword"></div>
+        <div class="form-group"><label>Confirmar</label><input type="password" id="confirmPassword"></div>
         <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button onclick="changePassword()" class="btn-success" style="flex:1;">Salvar</button>
-            <button onclick="closeChangePasswordModal()" class="btn-danger" style="flex:1;">Cancelar</button>
+            <button onclick="changePassword()" class="btn-success">Salvar</button>
+            <button onclick="closeChangePasswordModal()" class="btn-danger">Cancelar</button>
         </div>
     </div>
 </div>
 
 <div id="mainApp" style="display: none;">
     <div class="header">
-        <h1><i class="fas fa-chart-line"></i> Gestão Financeira Cryotronics</h1>
+        <h1><i class="fas fa-chart-line"></i> Cryotronics ERP</h1>
         <div class="platform-badge" onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Alterar Senha</div>
-        <p>Controle Financeiro - Santos e Camaçari</p>
-        <div class="sync-status">
-            <i class="fas fa-cloud-upload-alt"></i> Sincronizado com a nuvem
-        </div>
+        <div class="sync-status"><i class="fas fa-cloud-upload-alt"></i> Conectado</div>
     </div>
 
     <div class="container">
@@ -337,134 +296,88 @@
             <button class="tab-btn" data-tab="dre"><i class="fas fa-chart-bar"></i> DRE</button>
         </div>
 
-        <!-- Dashboard Tab -->
         <div id="dashboard" class="tab-content active">
             <div class="stats-grid">
-                <div class="stat-card santos"><h4><i class="fas fa-building"></i> Unidade Santos</h4><div class="value" id="santosRevenue">R$ 0,00</div><small>Receitas</small><div class="value" id="santosExpense" style="font-size: 1rem; margin-top: 5px;">R$ 0,00</div><small>Despesas</small><i class="fas fa-chart-line"></i></div>
-                <div class="stat-card camacari"><h4><i class="fas fa-building"></i> Unidade Camaçari</h4><div class="value" id="camacariRevenue">R$ 0,00</div><small>Receitas</small><div class="value" id="camacariExpense" style="font-size: 1rem; margin-top: 5px;">R$ 0,00</div><small>Despesas</small><i class="fas fa-chart-line"></i></div>
-                <div class="stat-card total"><h4><i class="fas fa-chart-line"></i> Consolidado</h4><div class="value" id="totalRevenue">R$ 0,00</div><small>Receitas Totais</small><div class="value" id="totalProfit" style="font-size: 1rem; margin-top: 5px;">R$ 0,00</div><small>Lucro Total</small><i class="fas fa-chart-line"></i></div>
+                <div class="stat-card santos"><h4>Unidade Santos</h4><div class="value" id="santosRevenue">R$ 0,00</div><small>Receitas</small><div class="value" id="santosExpense" style="font-size:1rem">R$ 0,00</div><small>Despesas</small></div>
+                <div class="stat-card camacari"><h4>Unidade Camaçari</h4><div class="value" id="camacariRevenue">R$ 0,00</div><small>Receitas</small><div class="value" id="camacariExpense" style="font-size:1rem">R$ 0,00</div><small>Despesas</small></div>
+                <div class="stat-card total"><h4>Consolidado</h4><div class="value" id="totalRevenue">R$ 0,00</div><small>Receitas</small><div class="value" id="totalProfit" style="font-size:1rem">R$ 0,00</div><small>Lucro</small></div>
             </div>
-
             <div class="card">
-                <h3><i class="fas fa-chart-bar"></i> Análise por Período e Contas</h3>
+                <h3>Análise por Período</h3>
                 <div class="filter-bar">
-                    <div class="filter-item"><label>Data Início</label><input type="date" id="dashStartDate"></div>
-                    <div class="filter-item"><label>Data Fim</label><input type="date" id="dashEndDate"></div>
+                    <div class="filter-item"><label>Data Início</label><input type="date" id="dashStart"></div>
+                    <div class="filter-item"><label>Data Fim</label><input type="date" id="dashEnd"></div>
                     <div class="filter-item"><label>Unidade</label><select id="dashUnit"><option value="all">Todas</option><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
-                    <div class="filter-item"><button onclick="updateDashboard()" class="btn-info"><i class="fas fa-chart-line"></i> Atualizar</button><button onclick="resetDashboardFilters()" class="btn-warning"><i class="fas fa-undo"></i> Reset</button></div>
+                    <div class="filter-item"><button onclick="updateDashboard()" class="btn-info">Atualizar</button></div>
                 </div>
-                <div class="form-group"><label>Contas para Análise (selecione uma ou mais)</label><div class="multi-select" id="accountMultiSelect"></div></div>
                 <div class="chart-container"><canvas id="monthlyChart"></canvas></div>
-            </div>
-
-            <div class="card">
-                <h3><i class="fas fa-clock"></i> Últimos Lançamentos</h3>
-                <div class="table-container"><table id="recentTable"><thead><tr><th>Data</th><th>Unidade</th><th>Descrição</th><th>Conta</th><th>Valor</th></tr></thead><tbody></tbody></table></div>
             </div>
         </div>
 
-        <!-- Transactions Tab -->
         <div id="transactions" class="tab-content">
             <div class="card">
-                <h3><i class="fas fa-plus-circle"></i> Novo Lançamento</h3>
+                <h3>Novo Lançamento</h3>
                 <div class="form-grid">
-                    <div class="form-group"><label>Data *</label><input type="date" id="txDate"></div>
-                    <div class="form-group"><label>Unidade *</label><select id="txUnit"><option value="">Selecione...</option><option value="SANTOS">🏢 Santos</option><option value="CAMACARI">🏭 Camaçari</option></select></div>
-                    <div class="form-group"><label>Descrição *</label><input type="text" id="txDesc" placeholder="Ex: Manutenção"></div>
-                    <div class="form-group"><label>Tipo Serviço</label><select id="txServiceType"><option value="interno">Interno</option><option value="externo">Externo</option></select></div>
-                    <div class="form-group"><label>Conta *</label><select id="txAccount"></select></div>
-                    <div class="form-group"><label>Valor R$ *</label><input type="number" id="txValue" step="0.01" placeholder="0,00"></div>
+                    <div class="form-group"><label>Data</label><input type="date" id="txDate"></div>
+                    <div class="form-group"><label>Unidade</label><select id="txUnit"><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
+                    <div class="form-group"><label>Descrição</label><input type="text" id="txDesc"></div>
+                    <div class="form-group"><label>Conta</label><select id="txAccount"></select></div>
+                    <div class="form-group"><label>Valor R$</label><input type="number" id="txValue" step="0.01"></div>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="saveTransaction()" class="btn-success" style="flex: 1;"><i class="fas fa-save"></i> SALVAR</button>
-                    <button onclick="openImportModal()" class="btn-warning" style="flex: 1;"><i class="fas fa-file-import"></i> IMPORTAR EXCEL</button>
-                </div>
+                <button onclick="saveTransaction()" class="btn-success">SALVAR</button>
             </div>
-
             <div class="card">
-                <h3><i class="fas fa-filter"></i> Filtros</h3>
+                <h3>Filtros</h3>
                 <div class="filter-bar">
                     <div class="filter-item"><label>Data Início</label><input type="date" id="filterStart"></div>
                     <div class="filter-item"><label>Data Fim</label><input type="date" id="filterEnd"></div>
                     <div class="filter-item"><label>Unidade</label><select id="filterUnit"><option value="">Todas</option><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
-                    <div class="filter-item"><label>Tipo Serviço</label><select id="filterServiceType"><option value="">Todos</option><option value="interno">Interno</option><option value="externo">Externo</option></select></div>
                     <div class="filter-item"><label>Tipo</label><select id="filterType"><option value="">Todos</option><option value="RECEITA">Receitas</option><option value="DESPESA">Despesas</option></select></div>
-                    <div class="filter-item"><label>Contas</label><select id="filterAccountTrans"><option value="">Todas</option></select></div>
-                    <div class="filter-item"><button onclick="applyFilters()"><i class="fas fa-search"></i> Filtrar</button><button onclick="clearFilters()"><i class="fas fa-undo"></i> Limpar</button></div>
+                    <div class="filter-item"><button onclick="applyFilters()">Filtrar</button><button onclick="clearFilters()">Limpar</button></div>
                 </div>
             </div>
-
             <div class="card">
-                <h3>Lista de Lançamentos</h3>
-                <div class="table-container">
-                    <table id="transactionsTable">
-                        <thead><tr><th>Data</th><th>Unidade</th><th>Descrição</th><th>Tipo Serviço</th><th>Conta</th><th>Valor</th><th>Ações</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-                <div id="totalFiltrado" class="total-soma">💰 Total dos Valores Filtrados: R$ 0,00</div>
+                <h3>Lançamentos</h3>
+                <div class="table-container"><table id="transTable"><thead><tr><th>Data</th><th>Unidade</th><th>Descrição</th><th>Conta</th><th>Valor</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
+                <div id="totalFiltrado" class="total-soma">Total: R$ 0,00</div>
             </div>
         </div>
 
-        <!-- Account Plan Tab -->
         <div id="accountPlan" class="tab-content">
             <div class="card">
-                <h3><i class="fas fa-plus-circle"></i> Nova Conta</h3>
+                <h3>Nova Conta</h3>
                 <div class="form-grid">
-                    <div class="form-group"><label>Código</label><input type="text" id="newAccCode" placeholder="Ex: 3.2.2.07"></div>
-                    <div class="form-group"><label>Nome</label><input type="text" id="newAccName" placeholder="Ex: Despesas com Treinamento"></div>
-                    <div class="form-group"><label>Categoria</label><select id="newAccType"><option value="ATIVO">ATIVO</option><option value="PASSIVO">PASSIVO</option><option value="RECEITA">RECEITA</option><option value="CUSTO">CUSTO</option><option value="DESPESA">DESPESA</option></select></div>
+                    <div class="form-group"><label>Código</label><input type="text" id="newCode"></div>
+                    <div class="form-group"><label>Nome</label><input type="text" id="newName"></div>
+                    <div class="form-group"><label>Tipo</label><select id="newType"><option>ATIVO</option><option>PASSIVO</option><option>RECEITA</option><option>CUSTO</option><option>DESPESA</option></select></div>
                 </div>
-                <button onclick="addAccount()" class="btn-success"><i class="fas fa-plus"></i> Adicionar</button>
+                <button onclick="addAccount()" class="btn-success">Adicionar</button>
             </div>
             <div class="card">
                 <h3>Plano de Contas</h3>
-                <div class="table-container"><table id="accountsTable"><thead><tr><th>Código</th><th>Descrição</th><th>Tipo</th><th>Status DRE</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-container"><table id="accountsTable"><thead><tr><th>Código</th><th>Nome</th><th>Tipo</th><th>Status DRE</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
             </div>
         </div>
 
-        <!-- DRE Tab -->
         <div id="dre" class="tab-content">
             <div class="card">
-                <h3><i class="fas fa-chart-bar"></i> DRE por Período</h3>
+                <h3>DRE por Período</h3>
                 <div class="filter-bar">
-                    <div class="filter-item"><label>Data Início</label><input type="date" id="dreStartDate"></div>
-                    <div class="filter-item"><label>Data Fim</label><input type="date" id="dreEndDate"></div>
+                    <div class="filter-item"><label>Data Início</label><input type="date" id="dreStart"></div>
+                    <div class="filter-item"><label>Data Fim</label><input type="date" id="dreEnd"></div>
                     <div class="filter-item"><label>Unidade</label><select id="dreUnit"><option value="all">Todas</option><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
-                    <div class="filter-item"><button onclick="updateDRE()" class="btn-info"><i class="fas fa-calculator"></i> Calcular DRE</button></div>
+                    <div class="filter-item"><button onclick="updateDRE()" class="btn-info">Calcular</button></div>
                 </div>
                 <div class="form-group">
-                    <label>Contas EXCLUÍDAS do DRE (clique para adicionar/remover)</label>
-                    <div class="multi-select" id="excludedAccountsSelect"></div>
+                    <label>Contas Excluídas do DRE</label>
+                    <div class="multi-select" id="excludedList"></div>
                 </div>
             </div>
-            <div id="dreContainer" class="dre-grid">
-                <div class="dre-card geral">
-                    <h4><i class="fas fa-chart-line"></i> DRE - Geral</h4>
-                    <div id="dreGeral"></div>
-                </div>
+            <div class="dre-card" style="background:white; border-top:4px solid #27ae60; padding:15px; border-radius:16px;">
+                <h4>Demonstração de Resultado</h4>
+                <div id="dreResult"></div>
             </div>
-            <div class="card"><h3>Gráfico Comparativo</h3><div class="chart-container"><canvas id="dreChart"></canvas></div></div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Importação Excel -->
-<div id="importModal" class="modal">
-    <div class="modal-content">
-        <h3><i class="fas fa-file-import"></i> Importar Lançamentos do Excel</h3>
-        <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">Colunas: DATA, DESCRIÇÃO, UNIDADE, CONTA, TIPO, VALOR</p>
-        <div class="file-input-area" onclick="document.getElementById('excelFile').click()">
-            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #0b2b40;"></i>
-            <p>Clique para selecionar arquivo Excel</p>
-            <input type="file" id="excelFile" accept=".xlsx,.xls" style="display: none;" onchange="previewExcel(this)">
-        </div>
-        <div id="previewArea" style="display: none;">
-            <div id="previewTable" style="max-height: 300px; overflow-y: auto;"></div>
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button onclick="importExcelData()" class="btn-success">Confirmar</button>
-                <button onclick="closeImportModal()" class="btn-danger">Cancelar</button>
-            </div>
+            <div class="card"><div class="chart-container"><canvas id="dreChart"></canvas></div></div>
         </div>
     </div>
 </div>
@@ -483,77 +396,77 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let accounts = [];
-    let transactions = [];
-    let excludedAccounts = []; // IDs das contas excluídas do DRE
-    let monthlyChart = null;
-    let dreChart = null;
-    let importedData = [];
+    let accounts = [], transactions = [];
+    let excludedAccounts = [];
+    let monthlyChart = null, dreChart = null;
     let currentPassword = "1234";
-
-    function detectPlatform() {
-        const ua = navigator.userAgent;
-        const platform = document.getElementById('platformBadge');
-        if (ua.match(/iPhone|iPad|iPod/i)) platform.innerHTML = '<i class="fab fa-apple"></i> iOS';
-        else if (ua.match(/Android/i)) platform.innerHTML = '<i class="fab fa-android"></i> Android';
-        else platform.innerHTML = '<i class="fas fa-globe"></i> Web';
-    }
 
     function login() {
         if (document.getElementById("pinInput").value === currentPassword) {
             document.getElementById("authOverlay").style.display = "none";
             document.getElementById("mainApp").style.display = "block";
-            detectPlatform();
             loadExcludedAccounts();
-            initializeData();
-        } else {
-            alert("Senha incorreta!");
-        }
+            loadData();
+        } else alert("Senha incorreta!");
     }
 
     function loadExcludedAccounts() {
-        const stored = localStorage.getItem("dreExcludedAccounts");
-        if (stored) {
-            excludedAccounts = JSON.parse(stored);
-        } else {
-            excludedAccounts = [];
-        }
+        const stored = localStorage.getItem("dreExcluded");
+        excludedAccounts = stored ? JSON.parse(stored) : [];
     }
 
     function saveExcludedAccounts() {
-        localStorage.setItem("dreExcludedAccounts", JSON.stringify(excludedAccounts));
-        renderExcludedAccountsSelect();
+        localStorage.setItem("dreExcluded", JSON.stringify(excludedAccounts));
+        renderExcludedList();
         updateDRE();
     }
 
-    function toggleExcludeAccount(accountId) {
-        const index = excludedAccounts.indexOf(accountId);
-        if (index === -1) {
-            excludedAccounts.push(accountId);
-        } else {
-            excludedAccounts.splice(index, 1);
-        }
+    function isExcluded(id) { return excludedAccounts.includes(id); }
+    function toggleExclude(id) {
+        if (excludedAccounts.includes(id)) excludedAccounts = excludedAccounts.filter(x => x !== id);
+        else excludedAccounts.push(id);
         saveExcludedAccounts();
-        showToast(excludedAccounts.includes(accountId) ? "Conta excluída do DRE" : "Conta incluída no DRE");
+        renderAccounts();
     }
 
-    function isExcluded(accountId) {
-        return excludedAccounts.includes(accountId);
+    function loadData() {
+        db.ref('accounts').once('value', snap => {
+            if (snap.val()) accounts = Object.entries(snap.val()).map(([id, a]) => ({ id, ...a }));
+            renderAccounts();
+            updateAccountSelects();
+            renderExcludedList();
+        });
+        db.ref('transactions').once('value', snap => {
+            if (snap.val()) transactions = Object.entries(snap.val()).map(([id, t]) => ({ id, ...t }));
+            renderTransactions();
+            updateDashboard();
+            updateDRE();
+            document.getElementById("totalFiltrado").innerHTML = `Total: R$ ${transactions.reduce((s,t)=>s+t.value,0).toFixed(2)}`;
+        });
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0,10);
+        const lastDay = today.toISOString().slice(0,10);
+        document.getElementById("txDate").valueAsDate = today;
+        document.getElementById("dashStart").value = firstDay;
+        document.getElementById("dashEnd").value = lastDay;
+        document.getElementById("dreStart").value = firstDay;
+        document.getElementById("dreEnd").value = lastDay;
+        document.getElementById("filterStart").value = firstDay;
+        document.getElementById("filterEnd").value = lastDay;
     }
 
-    function renderExcludedAccountsSelect() {
-        const container = document.getElementById("excludedAccountsSelect");
+    function renderExcludedList() {
+        const container = document.getElementById("excludedList");
         if (!container) return;
-        
         container.innerHTML = '';
-        accounts.sort((a,b)=> (a.cod || "").localeCompare(b.cod || "", undefined, { numeric: true })).forEach(acc => {
+        accounts.sort((a,b)=> (a.cod||"").localeCompare(b.cod||"")).forEach(acc => {
             if (acc.cod && acc.nome) {
-                const isExcludedFlag = isExcluded(acc.id);
+                const excluded = isExcluded(acc.id);
                 container.innerHTML += `
-                    <label style="display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; border-bottom: 1px solid #eee;">
+                    <label style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #eee;">
                         <span>${acc.cod} - ${acc.nome}</span>
-                        <button onclick="toggleExcludeAccount('${acc.id}')" class="${isExcludedFlag ? 'btn-excluded' : 'btn-exclude'}" style="padding: 4px 12px; font-size: 0.7rem;">
-                            ${isExcludedFlag ? '✓ Incluir' : '✗ Excluir'}
+                        <button onclick="toggleExclude('${acc.id}')" class="${excluded ? 'btn-excluded' : 'btn-exclude'}" style="padding:2px 8px; font-size:0.7rem;">
+                            ${excluded ? 'Incluir' : 'Excluir'}
                         </button>
                     </label>
                 `;
@@ -561,182 +474,19 @@
         });
     }
 
-    function openChangePasswordModal() {
-        document.getElementById("changePasswordModal").style.display = "flex";
-        document.getElementById("currentPassword").value = "";
-        document.getElementById("newPassword").value = "";
-        document.getElementById("confirmPassword").value = "";
-    }
-
-    function closeChangePasswordModal() {
-        document.getElementById("changePasswordModal").style.display = "none";
-    }
-
-    function changePassword() {
-        const current = document.getElementById("currentPassword").value;
-        const newPass = document.getElementById("newPassword").value;
-        const confirm = document.getElementById("confirmPassword").value;
-
-        if (current !== currentPassword) {
-            alert("Senha atual incorreta!");
-            return;
-        }
-        if (newPass !== confirm) {
-            alert("Nova senha e confirmação não coincidem!");
-            return;
-        }
-        if (newPass.length < 4) {
-            alert("A nova senha deve ter pelo menos 4 caracteres!");
-            return;
-        }
-
-        currentPassword = newPass;
-        closeChangePasswordModal();
-        showToast("Senha alterada com sucesso!");
-    }
-
-    function showToast(msg, isError = false) {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.style.background = isError ? '#c0392b' : '#27ae60';
-        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation' : 'fa-check'}"></i> ${msg}`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    function initializeData() {
-        console.log("🔄 Iniciando carregamento dos dados...");
-        
-        db.ref('accounts').once('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data && Object.keys(data).length > 0) {
-                accounts = Object.entries(data).map(([id, acc]) => ({ id, ...acc }));
-                console.log(`✅ ${accounts.length} contas carregadas com sucesso!`);
-            } else {
-                accounts = [];
-            }
-            renderAccounts();
-            updateAccountSelects();
-            renderAccountMultiSelect();
-            renderExcludedAccountsSelect();
-        }).catch(error => {
-            console.error("Erro ao carregar contas:", error);
-            showToast("Erro ao carregar contas!", true);
-        });
-        
-        db.ref('transactions').once('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data && Object.keys(data).length > 0) {
-                transactions = Object.entries(data).map(([id, trans]) => ({ id, ...trans }));
-                console.log(`✅ ${transactions.length} lançamentos carregados com sucesso!`);
-            } else {
-                transactions = [];
-            }
-            renderTransactions();
-            updateDashboard();
-            updateDRE();
-            showToast(`✅ ${transactions.length} lançamentos carregados!`);
-        }).catch(error => {
-            console.error("Erro ao carregar transações:", error);
-            showToast("Erro ao carregar lançamentos!", true);
-        });
-        
-        const today = new Date();
-        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0,10);
-        const lastDay = today.toISOString().slice(0,10);
-        
-        document.getElementById("txDate").valueAsDate = today;
-        document.getElementById("dashStartDate").value = firstDay;
-        document.getElementById("dashEndDate").value = lastDay;
-        document.getElementById("dreStartDate").value = firstDay;
-        document.getElementById("dreEndDate").value = lastDay;
-        document.getElementById("filterStart").value = firstDay;
-        document.getElementById("filterEnd").value = lastDay;
-    }
-
-    function renderAccountMultiSelect() {
-        const container = document.getElementById("accountMultiSelect");
-        if (!container) return;
-        container.innerHTML = '<label style="padding:8px; background:#e9ecef;"><input type="checkbox" id="selectAllAccounts" onchange="toggleAllAccounts()"> Selecionar Todas</label>';
-        accounts.sort((a,b)=> (a.cod || "").localeCompare(b.cod || "", undefined, { numeric: true })).forEach(acc => {
-            if (acc.cod && acc.nome) {
-                container.innerHTML += `<label><input type="checkbox" class="account-checkbox" value="${acc.id}" onchange="updateDashboard()"> ${acc.cod} - ${acc.nome}</label>`;
-            }
-        });
-        const selectAll = document.getElementById("selectAllAccounts");
-        if (selectAll) selectAll.checked = true;
-        document.querySelectorAll(".account-checkbox").forEach(cb => cb.checked = true);
-    }
-
-    function toggleAllAccounts() {
-        const selectAll = document.getElementById("selectAllAccounts");
-        const checkboxes = document.querySelectorAll(".account-checkbox");
-        checkboxes.forEach(cb => cb.checked = selectAll.checked);
-        updateDashboard();
-    }
-
-    function getSelectedAccounts() {
-        const selected = [];
-        document.querySelectorAll(".account-checkbox:checked").forEach(cb => selected.push(cb.value));
-        return selected;
-    }
-
-    function saveTransaction() {
-        const date = document.getElementById("txDate").value;
-        const unit = document.getElementById("txUnit").value;
-        const desc = document.getElementById("txDesc").value.trim();
-        const serviceType = document.getElementById("txServiceType").value;
-        const accountId = document.getElementById("txAccount").value;
-        const value = parseFloat(document.getElementById("txValue").value);
-        
-        if (!date || !unit || !desc || !accountId || isNaN(value) || value <= 0) {
-            alert("Preencha todos os campos obrigatórios!");
-            return;
-        }
-        
-        const account = accounts.find(a => a.id === accountId);
-        if (!account) {
-            alert("Conta não encontrada!");
-            return;
-        }
-        
-        db.ref('transactions').push({
-            date: date,
-            unit: unit,
-            description: desc,
-            serviceType: serviceType,
-            accountId: accountId,
-            accountCode: account.cod,
-            accountName: account.nome,
-            value: value,
-            type: account.tipo === "RECEITA" ? "RECEITA" : "DESPESA",
-            timestamp: Date.now()
-        }).then(() => {
-            showToast(`Salvo em ${unit === 'SANTOS' ? 'Santos' : 'Camaçari'}`);
-            document.getElementById("txDesc").value = "";
-            document.getElementById("txValue").value = "";
-            initializeData();
-        }).catch(error => {
-            showToast("Erro ao salvar!", true);
-        });
-    }
-
     function renderAccounts() {
         const tbody = document.querySelector("#accountsTable tbody");
         if (!tbody) return;
-        tbody.innerHTML = "";
-        accounts.sort((a,b)=> (a.cod || "").localeCompare(b.cod || "", undefined, { numeric: true })).forEach(acc => {
+        tbody.innerHTML = '';
+        accounts.sort((a,b)=> (a.cod||"").localeCompare(b.cod||"", undefined, {numeric:true})).forEach(acc => {
             if (acc.cod && acc.nome) {
-                const excludedStatus = isExcluded(acc.id);
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${acc.cod}</strong></td>
                         <td>${acc.nome}</td>
-                        <td><span class="badge">${acc.tipo || "N/A"}</span></td>
-                        <td><span class="badge ${excludedStatus ? 'badge-excluded' : ''}">${excludedStatus ? 'Excluído do DRE' : 'Incluído no DRE'}</span></td>
-                        <td>
-                            <button onclick="deleteAccount('${acc.id}')" class="btn-danger" style="padding:5px 10px;"><i class="fas fa-trash"></i></button>
-                        </td>
+                        <td><span class="badge">${acc.tipo||'N/A'}</span></td>
+                        <td><span class="badge ${isExcluded(acc.id) ? 'badge-excluded' : ''}">${isExcluded(acc.id) ? 'Excluído' : 'Incluído'}</span></td>
+                        <td><button onclick="deleteAccount('${acc.id}')" class="btn-danger" style="padding:5px 10px;"><i class="fas fa-trash"></i></button></td>
                     </tr>
                 `;
             }
@@ -744,70 +494,47 @@
     }
 
     function addAccount() {
-        const cod = document.getElementById("newAccCode").value.trim();
-        const nome = document.getElementById("newAccName").value.trim();
-        const tipo = document.getElementById("newAccType").value;
-        if (!cod || !nome) {
-            alert("Preencha código e nome da conta!");
-            return;
-        }
-        db.ref('accounts').push({ cod, nome, tipo }).then(() => {
-            showToast("Conta adicionada!");
-            document.getElementById("newAccCode").value = "";
-            document.getElementById("newAccName").value = "";
-            initializeData();
-        });
+        const cod = document.getElementById("newCode").value.trim();
+        const nome = document.getElementById("newName").value.trim();
+        const tipo = document.getElementById("newType").value;
+        if (!cod || !nome) return alert("Preencha código e nome!");
+        db.ref('accounts').push({ cod, nome, tipo }).then(() => { loadData(); showToast("Conta adicionada!"); });
+        document.getElementById("newCode").value = "";
+        document.getElementById("newName").value = "";
     }
 
     function deleteAccount(id) {
-        if (confirm("Tem certeza que deseja excluir esta conta?")) {
-            db.ref('accounts/' + id).remove().then(() => {
-                showToast("Conta excluída!");
-                initializeData();
-            });
-        }
+        if (confirm("Excluir conta?")) db.ref('accounts/'+id).remove().then(() => loadData());
     }
 
     function updateAccountSelects() {
-        const selects = ["txAccount", "filterAccountTrans"];
-        selects.forEach(selId => {
-            const sel = document.getElementById(selId);
-            if (!sel) return;
-            sel.innerHTML = '<option value="">Selecione...</option>';
-            accounts.forEach(acc => {
-                if (acc.cod && acc.nome) {
-                    sel.innerHTML += `<option value="${acc.id}">${acc.cod} - ${acc.nome}</option>`;
-                }
-            });
+        const sel = document.getElementById("txAccount");
+        if (!sel) return;
+        sel.innerHTML = '<option value="">Selecione...</option>';
+        accounts.forEach(acc => {
+            if (acc.cod && acc.nome) sel.innerHTML += `<option value="${acc.id}">${acc.cod} - ${acc.nome}</option>`;
         });
     }
 
-    function deleteTransaction(id) {
-        if (confirm("Deseja excluir este lançamento?")) {
-            db.ref('transactions/' + id).remove().then(() => {
-                showToast("Lançamento excluído!");
-                initializeData();
-            });
-        }
+    function saveTransaction() {
+        const date = document.getElementById("txDate").value;
+        const unit = document.getElementById("txUnit").value;
+        const desc = document.getElementById("txDesc").value.trim();
+        const accId = document.getElementById("txAccount").value;
+        const val = parseFloat(document.getElementById("txValue").value);
+        if (!date || !unit || !desc || !accId || isNaN(val) || val <= 0) return alert("Preencha todos os campos!");
+        const acc = accounts.find(a => a.id === accId);
+        db.ref('transactions').push({
+            date, unit, description: desc, accountId: accId,
+            accountCode: acc.cod, accountName: acc.nome,
+            value: val, type: acc.tipo === "RECEITA" ? "RECEITA" : "DESPESA", timestamp: Date.now()
+        }).then(() => { loadData(); showToast("Salvo!"); });
+        document.getElementById("txDesc").value = "";
+        document.getElementById("txValue").value = "";
     }
 
-    function editTransaction(id, currentData) {
-        const newDate = prompt("Nova data (AAAA-MM-DD):", currentData.date);
-        const newDesc = prompt("Nova descrição:", currentData.description);
-        const newValue = prompt("Novo valor:", currentData.value);
-        if (newDate && newDesc && newValue && !isNaN(parseFloat(newValue))) {
-            db.ref('transactions/' + id).update({
-                date: newDate,
-                description: newDesc,
-                value: parseFloat(newValue),
-                timestamp: Date.now()
-            }).then(() => {
-                showToast("Lançamento atualizado!");
-                initializeData();
-            });
-        } else {
-            alert("Preencha todos os campos corretamente!");
-        }
+    function deleteTransaction(id) {
+        if (confirm("Excluir?")) db.ref('transactions/'+id).remove().then(() => loadData());
     }
 
     function renderTransactions() {
@@ -815,54 +542,28 @@
         const start = document.getElementById("filterStart").value;
         const end = document.getElementById("filterEnd").value;
         const unit = document.getElementById("filterUnit").value;
-        const serviceType = document.getElementById("filterServiceType").value;
         const tipo = document.getElementById("filterType").value;
-        const accFilter = document.getElementById("filterAccountTrans").value;
-        
         if (start) filtered = filtered.filter(t => t.date >= start);
         if (end) filtered = filtered.filter(t => t.date <= end);
         if (unit) filtered = filtered.filter(t => t.unit === unit);
-        if (serviceType) filtered = filtered.filter(t => t.serviceType === serviceType);
         if (tipo) filtered = filtered.filter(t => t.type === tipo);
-        if (accFilter) filtered = filtered.filter(t => t.accountId === accFilter);
         filtered.sort((a,b)=>b.date.localeCompare(a.date));
         
-        const totalFiltrado = filtered.reduce((sum, t) => sum + t.value, 0);
-        const totalDiv = document.getElementById("totalFiltrado");
-        if (totalDiv) totalDiv.innerHTML = `💰 Total dos Valores Filtrados: R$ ${totalFiltrado.toFixed(2)}`;
+        const total = filtered.reduce((s,t)=>s+t.value,0);
+        document.getElementById("totalFiltrado").innerHTML = `💰 Total: R$ ${total.toFixed(2)}`;
         
-        const tbody = document.querySelector("#transactionsTable tbody");
+        const tbody = document.querySelector("#transTable tbody");
         if (tbody) {
-            tbody.innerHTML = "";
+            tbody.innerHTML = '';
             filtered.forEach(t => {
                 tbody.innerHTML += `
                     <tr>
-                        <td>${t.date ? t.date.split('-').reverse().join('/') : ''}</td>
-                        <td><span class="badge ${t.unit === 'SANTOS' ? 'badge-santos' : 'badge-camacari'}">${t.unit === 'SANTOS' ? 'Santos' : 'Camaçari'}</span></td>
-                        <td>${t.description || ''}</td>
-                        <td><span class="badge ${t.serviceType === 'interno' ? 'badge-interno' : 'badge-externo'}">${t.serviceType === 'interno' ? 'Interno' : 'Externo'}</span></td>
-                        <td><small>${t.accountCode || ''}</small><br>${t.accountName || ''}</td>
-                        <td style="color:${t.type === 'RECEITA' ? '#27ae60' : '#c0392b'}; font-weight:bold;">R$ ${(t.value || 0).toFixed(2)}</td>
-                        <td>
-                            <button onclick="editTransaction('${t.id}', {date:'${t.date || ''}', description: '${(t.description || '').replace(/'/g, "\\'")}', value:${t.value || 0}})" class="btn-warning" style="padding:5px 10px; margin-right:5px;"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteTransaction('${t.id}')" class="btn-danger" style="padding:5px 10px;"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-        
-        const recentTbody = document.querySelector("#recentTable tbody");
-        if (recentTbody) {
-            recentTbody.innerHTML = "";
-            filtered.slice(0, 10).forEach(t => {
-                recentTbody.innerHTML += `
-                    <tr>
-                        <td>${t.date ? t.date.split('-').reverse().join('/') : ''}</td>
-                        <td><span class="badge ${t.unit === 'SANTOS' ? 'badge-santos' : 'badge-camacari'}">${t.unit === 'SANTOS' ? 'Santos' : 'Camaçari'}</span></td>
-                        <td>${t.description || ''}</td>
-                        <td><small>${t.accountCode || ''}</small><br>${t.accountName || ''}</td>
-                        <td style="color:${t.type === 'RECEITA' ? '#27ae60' : '#c0392b'}">R$ ${(t.value || 0).toFixed(2)}</td>
+                        <td>${t.date.split('-').reverse().join('/')}</td>
+                        <td><span class="badge ${t.unit==='SANTOS'?'badge-santos':'badge-camacari'}">${t.unit==='SANTOS'?'Santos':'Camaçari'}</span></td>
+                        <td>${t.description||''}</td>
+                        <td><small>${t.accountCode}</small><br>${t.accountName}</td>
+                        <td style="color:${t.type==='RECEITA'?'#27ae60':'#c0392b'}">R$ ${t.value.toFixed(2)}</td>
+                        <td><button onclick="deleteTransaction('${t.id}')" class="btn-danger"><i class="fas fa-trash"></i></button></td>
                     </tr>
                 `;
             });
@@ -870,205 +571,115 @@
     }
 
     function applyFilters() { renderTransactions(); }
-    
     function clearFilters() {
-        const today = new Date();
-        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0,10);
-        const todayStr = today.toISOString().slice(0,10);
-        document.getElementById("filterStart").value = firstDay;
-        document.getElementById("filterEnd").value = todayStr;
+        document.getElementById("filterStart").value = "";
+        document.getElementById("filterEnd").value = "";
         document.getElementById("filterUnit").value = "";
-        document.getElementById("filterServiceType").value = "";
         document.getElementById("filterType").value = "";
-        document.getElementById("filterAccountTrans").value = "";
         renderTransactions();
     }
 
     function updateDashboard() {
         let filtered = [...transactions];
-        const start = document.getElementById("dashStartDate").value;
-        const end = document.getElementById("dashEndDate").value;
+        const start = document.getElementById("dashStart").value;
+        const end = document.getElementById("dashEnd").value;
         const unit = document.getElementById("dashUnit").value;
-        const selectedAccounts = getSelectedAccounts();
-        
         if (start) filtered = filtered.filter(t => t.date >= start);
         if (end) filtered = filtered.filter(t => t.date <= end);
         if (unit !== "all") filtered = filtered.filter(t => t.unit === unit);
-        if (selectedAccounts.length > 0) filtered = filtered.filter(t => selectedAccounts.includes(t.accountId));
         
-        const santosRec = filtered.filter(t => t.unit === "SANTOS" && t.type === "RECEITA").reduce((s,t)=>s+t.value,0);
-        const santosExp = filtered.filter(t => t.unit === "SANTOS" && t.type === "DESPESA").reduce((s,t)=>s+t.value,0);
-        const camacariRec = filtered.filter(t => t.unit === "CAMACARI" && t.type === "RECEITA").reduce((s,t)=>s+t.value,0);
-        const camacariExp = filtered.filter(t => t.unit === "CAMACARI" && t.type === "DESPESA").reduce((s,t)=>s+t.value,0);
+        const santosRec = filtered.filter(t=>t.unit==="SANTOS" && t.type==="RECEITA").reduce((s,t)=>s+t.value,0);
+        const santosExp = filtered.filter(t=>t.unit==="SANTOS" && t.type==="DESPESA").reduce((s,t)=>s+t.value,0);
+        const camRec = filtered.filter(t=>t.unit==="CAMACARI" && t.type==="RECEITA").reduce((s,t)=>s+t.value,0);
+        const camExp = filtered.filter(t=>t.unit==="CAMACARI" && t.type==="DESPESA").reduce((s,t)=>s+t.value,0);
         
         document.getElementById("santosRevenue").innerHTML = `R$ ${santosRec.toFixed(2)}`;
         document.getElementById("santosExpense").innerHTML = `R$ ${santosExp.toFixed(2)}`;
-        document.getElementById("camacariRevenue").innerHTML = `R$ ${camacariRec.toFixed(2)}`;
-        document.getElementById("camacariExpense").innerHTML = `R$ ${camacariExp.toFixed(2)}`;
-        document.getElementById("totalRevenue").innerHTML = `R$ ${(santosRec+camacariRec).toFixed(2)}`;
-        document.getElementById("totalProfit").innerHTML = `R$ ${(santosRec+camacariRec - santosExp-camacariExp).toFixed(2)}`;
+        document.getElementById("camacariRevenue").innerHTML = `R$ ${camRec.toFixed(2)}`;
+        document.getElementById("camacariExpense").innerHTML = `R$ ${camExp.toFixed(2)}`;
+        document.getElementById("totalRevenue").innerHTML = `R$ ${(santosRec+camRec).toFixed(2)}`;
+        document.getElementById("totalProfit").innerHTML = `R$ ${(santosRec+camRec - santosExp-camExp).toFixed(2)}`;
         
         const ctx = document.getElementById('monthlyChart').getContext('2d');
         if (monthlyChart) monthlyChart.destroy();
         monthlyChart = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: ['Santos Receitas', 'Santos Despesas', 'Camaçari Receitas', 'Camaçari Despesas'],
-                datasets: [{
-                    label: 'R$',
-                    data: [santosRec, santosExp, camacariRec, camacariExp],
-                    backgroundColor: ['#2980b9','#5dade2','#e67e22','#f39c12'],
-                    borderRadius: 8
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, ticks: { callback: v => `R$ ${v}` } } } }
+            data: { labels: ['Santos Rec', 'Santos Desp', 'Camaçari Rec', 'Camaçari Desp'],
+                    datasets: [{ label: 'R$', data: [santosRec, santosExp, camRec, camExp],
+                                backgroundColor: ['#2980b9','#5dade2','#e67e22','#f39c12'] }] },
+            options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { callback: v => `R$ ${v}` } } } }
         });
-    }
-
-    function resetDashboardFilters() {
-        const today = new Date();
-        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0,10);
-        const lastDay = today.toISOString().slice(0,10);
-        document.getElementById("dashStartDate").value = firstDay;
-        document.getElementById("dashEndDate").value = lastDay;
-        document.getElementById("dashUnit").value = "all";
-        const selectAll = document.getElementById("selectAllAccounts");
-        if (selectAll) selectAll.checked = true;
-        document.querySelectorAll(".account-checkbox").forEach(cb => cb.checked = true);
-        updateDashboard();
     }
 
     function updateDRE() {
         let filtered = [...transactions];
-        const start = document.getElementById("dreStartDate").value;
-        const end = document.getElementById("dreEndDate").value;
+        const start = document.getElementById("dreStart").value;
+        const end = document.getElementById("dreEnd").value;
         const unit = document.getElementById("dreUnit").value;
-        
         if (start) filtered = filtered.filter(t => t.date >= start);
         if (end) filtered = filtered.filter(t => t.date <= end);
         if (unit !== "all") filtered = filtered.filter(t => t.unit === unit);
-        
-        // Filtrar contas excluídas do DRE
         filtered = filtered.filter(t => !isExcluded(t.accountId));
         
-        const receitas = filtered.filter(t => t.type === "RECEITA").reduce((s,t)=>s+t.value,0);
-        const custos = filtered.filter(t => t.type === "DESPESA" && (t.accountName?.includes("Custo") || t.accountName?.includes("Insumo") || t.accountCode?.startsWith("3.2.1"))).reduce((s,t)=>s+t.value,0);
-        const despesas = filtered.filter(t => t.type === "DESPESA" && !t.accountName?.includes("Custo") && !t.accountName?.includes("Insumo") && !t.accountCode?.startsWith("3.2.1")).reduce((s,t)=>s+t.value,0);
+        const receitas = filtered.filter(t=>t.type==="RECEITA").reduce((s,t)=>s+t.value,0);
+        const custos = filtered.filter(t=>t.type==="DESPESA" && (t.accountName?.includes("Custo") || t.accountName?.includes("Insumo"))).reduce((s,t)=>s+t.value,0);
+        const despesas = filtered.filter(t=>t.type==="DESPESA" && !t.accountName?.includes("Custo")).reduce((s,t)=>s+t.value,0);
         const lucro = receitas - custos - despesas;
         
-        document.getElementById("dreGeral").innerHTML = `
-            <table class="dre-table">
+        document.getElementById("dreResult").innerHTML = `
+            <table style="width:100%">
                 <tr><td>Receitas Totais</td><td style="text-align:right">R$ ${receitas.toFixed(2)}</td></tr>
                 <tr><td>(-) Custos Operacionais</td><td style="text-align:right">R$ ${custos.toFixed(2)}</td></tr>
-                <tr style="border-top:1px solid #ddd;"><td><strong>Margem Bruta</strong></td><td style="text-align:right"><strong>R$ ${(receitas - custos).toFixed(2)}</strong></td></tr>
+                <tr style="border-top:1px solid #ddd;"><td><strong>Margem Bruta</strong></td><td style="text-align:right"><strong>R$ ${(receitas-custos).toFixed(2)}</strong></td></tr>
                 <tr><td>(-) Despesas Operacionais</td><td style="text-align:right">R$ ${despesas.toFixed(2)}</td></tr>
-                <tr style="border-top:2px solid #27ae60;"><td><strong>Lucro Líquido</strong></td><td style="text-align:right"><strong style="color:${lucro >= 0 ? '#27ae60' : '#c0392b'}">R$ ${lucro.toFixed(2)}</strong></td></tr>
+                <tr style="border-top:2px solid #27ae60;"><td><strong>Lucro Líquido</strong></td><td style="text-align:right"><strong style="color:${lucro>=0?'#27ae60':'#c0392b'}">R$ ${lucro.toFixed(2)}</strong></td></tr>
             </table>
-            <div style="margin-top: 10px; font-size: 0.7rem; color: #666;">
-                <i class="fas fa-info-circle"></i> ${filtered.length} lançamentos considerados | ${excludedAccounts.length} contas excluídas
-            </div>
+            <div style="margin-top:10px; font-size:0.7rem;">${filtered.length} lançamentos | ${excludedAccounts.length} contas excluídas</div>
         `;
         
         const ctx = document.getElementById('dreChart').getContext('2d');
         if (dreChart) dreChart.destroy();
         dreChart = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: ['Receitas', 'Custos', 'Despesas', 'Lucro'],
-                datasets: [{
-                    label: 'Valores (R$)',
-                    data: [receitas, custos, despesas, lucro],
-                    backgroundColor: ['#27ae60', '#c0392b', '#e67e22', lucro >= 0 ? '#2980b9' : '#c0392b'],
-                    borderRadius: 8
-                }]
-            },
+            data: { labels: ['Receitas', 'Custos', 'Despesas', 'Lucro'],
+                    datasets: [{ label: 'R$', data: [receitas, custos, despesas, lucro],
+                                backgroundColor: ['#27ae60','#c0392b','#e67e22', lucro>=0?'#2980b9':'#c0392b'] }] },
             options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { callback: v => `R$ ${v}` } } } }
         });
     }
 
-    function exportToExcel() {
-        const data = transactions.map(t => ({ Data: t.date, Unidade: t.unit==='SANTOS'?'Santos':'Camaçari', 'Tipo Serviço': t.serviceType, Descrição: t.description, Conta: t.accountName, Tipo: t.type, Valor: t.value }));
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Lançamentos");
-        XLSX.writeFile(wb, `Cryotronics_${new Date().toISOString().slice(0,10)}.xlsx`);
-        showToast("Exportado para Excel!");
+    function showToast(msg) {
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.innerHTML = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
     }
 
-    function exportToJSON() {
-        const dataStr = JSON.stringify(transactions, null, 2);
-        const blob = new Blob([dataStr], {type:"application/json"});
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `Cryotronics_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast("Exportado para JSON!");
+    function openChangePasswordModal() { document.getElementById("changePasswordModal").style.display = "flex"; }
+    function closeChangePasswordModal() { document.getElementById("changePasswordModal").style.display = "none"; }
+    function changePassword() {
+        const cur = document.getElementById("currentPassword").value;
+        const nov = document.getElementById("newPassword").value;
+        const conf = document.getElementById("confirmPassword").value;
+        if (cur !== currentPassword) return alert("Senha atual incorreta!");
+        if (nov !== conf) return alert("Senhas não coincidem!");
+        if (nov.length < 4) return alert("Mínimo 4 caracteres!");
+        currentPassword = nov;
+        closeChangePasswordModal();
+        showToast("Senha alterada!");
     }
 
-    function openImportModal() { document.getElementById("importModal").style.display = "flex"; }
-    function closeImportModal() { document.getElementById("importModal").style.display = "none"; }
-
-    function previewExcel(input) {
-        const file = input.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-            if (json.length === 0) return showToast("Arquivo vazio!", true);
-            const headers = Object.keys(json[0]);
-            const colMap = { data: headers.find(h=>h.toLowerCase().includes('data')) || headers[0],
-                             desc: headers.find(h=>h.toLowerCase().includes('desc')) || headers[1],
-                             unid: headers.find(h=>h.toLowerCase().includes('unid')) || headers[2],
-                             conta: headers.find(h=>h.toLowerCase().includes('conta')) || headers[3],
-                             tipo: headers.find(h=>h.toLowerCase().includes('tipo')) || headers[4],
-                             valor: headers.find(h=>h.toLowerCase().includes('valor')) || headers[5] };
-            importedData = json.map(row => ({ data: row[colMap.data], descricao: row[colMap.desc],
-                unidade: (row[colMap.unid]||"").toString().toUpperCase().includes("SANTOS")?"SANTOS":"CAMACARI",
-                conta: row[colMap.conta], tipo: (row[colMap.tipo]||"").toString().toUpperCase().includes("REC")?"RECEITA":"DESPESA",
-                valor: parseFloat(row[colMap.valor])||0, serviceType: "interno" })).filter(i=>i.data&&i.descricao&&i.valor>0);
-            let html = '<table><thead><tr><th>Data</th><th>Descrição</th><th>Unidade</th><th>Valor</th></tr></thead><tbody>';
-            importedData.slice(0,10).forEach(i=>html+=`<tr><td>${i.data}</td><td>${i.descricao.substring(0,30)}</td><td>${i.unidade==='SANTOS'?'Santos':'Camaçari'}</td><td>R$ ${i.valor.toFixed(2)}</td></tr>`);
-            html+=`</tbody></table><p>Total: ${importedData.length} registros</p>`;
-            document.getElementById("previewTable").innerHTML = html;
-            document.getElementById("previewArea").style.display = "block";
-        };
-        reader.readAsArrayBuffer(file);
-    }
-
-    async function importExcelData() {
-        if (importedData.length === 0) return showToast("Nenhum dado!", true);
-        let success=0, error=0;
-        for (const item of importedData) {
-            try {
-                let account = accounts.find(a=>a.cod===item.conta||a.nome===item.conta);
-                if (!account) {
-                    const newRef = db.ref('accounts').push();
-                    await newRef.set({ cod: item.conta, nome: item.conta, tipo: item.tipo });
-                    account = { id: newRef.key, cod: item.conta, nome: item.conta, tipo: item.tipo };
-                }
-                await db.ref('transactions').push({ date: item.data, unit: item.unidade, description: item.descricao, serviceType: item.serviceType,
-                    accountId: account.id, accountCode: account.cod, accountName: account.nome,
-                    value: item.valor, type: item.tipo, timestamp: Date.now() });
-                success++;
-            } catch(e) { error++; }
-        }
-        closeImportModal();
-        showToast(`Importado: ${success} sucesso, ${error} erros`);
-        initializeData();
-    }
-
-    document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-        document.querySelectorAll(".tab-content").forEach(tc=>tc.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById(btn.getAttribute("data-tab")).classList.add("active");
-        if (btn.getAttribute("data-tab") === "dashboard") updateDashboard();
-        if (btn.getAttribute("data-tab") === "dre") updateDRE();
-    }));
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(tc=>tc.classList.remove("active"));
+            btn.classList.add("active");
+            document.getElementById(btn.dataset.tab).classList.add("active");
+            if (btn.dataset.tab === "dashboard") updateDashboard();
+            if (btn.dataset.tab === "dre") updateDRE();
+        });
+    });
 </script>
 </body>
 </html>
