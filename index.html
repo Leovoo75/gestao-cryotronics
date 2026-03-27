@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CryoERP">
     <meta name="theme-color" content="#0b2b40">
-    <title>Cryotronics ERP - Análise Avançada</title>
+    <title>Gestão Financeira Cryotronics</title>
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -19,17 +19,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: #f0f2f5;
-            min-height: 100vh;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f0f2f5; min-height: 100vh; }
 
         .header {
             background: linear-gradient(135deg, #0b2b40 0%, #1c4e63 100%);
@@ -40,15 +31,7 @@
             top: 0;
             z-index: 100;
         }
-
-        .header h1 {
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            justify-content: center;
-        }
-
+        .header h1 { font-size: 1.2rem; display: flex; align-items: center; gap: 8px; justify-content: center; }
         .platform-badge {
             position: absolute;
             top: 10px;
@@ -57,21 +40,11 @@
             background: rgba(255,255,255,0.2);
             padding: 4px 8px;
             border-radius: 20px;
+            cursor: pointer;
         }
-
-        .sync-status {
-            text-align: center;
-            font-size: 0.6rem;
-            margin-top: 5px;
-            color: #2ecc71;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 12px;
-            padding-bottom: 70px;
-        }
+        .platform-badge:hover { background: rgba(255,255,255,0.3); }
+        .sync-status { text-align: center; font-size: 0.6rem; margin-top: 5px; color: #2ecc71; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 12px; padding-bottom: 70px; }
 
         .tabs {
             display: flex;
@@ -86,7 +59,6 @@
             top: 70px;
             z-index: 99;
         }
-
         .tab-btn {
             background: #e9ecef;
             border: none;
@@ -103,25 +75,10 @@
             flex: 1;
             justify-content: center;
         }
-
-        .tab-btn.active {
-            background: #0b2b40;
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .tab-btn.active { background: #0b2b40; color: white; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .card {
             background: white;
@@ -131,7 +88,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             border: 1px solid #e9ecef;
         }
-
         .card h3 {
             color: #0b2b40;
             margin-bottom: 15px;
@@ -149,27 +105,9 @@
             gap: 12px;
             margin-bottom: 15px;
         }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #495057;
-        }
-
-        input, select, textarea {
-            padding: 10px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; color: #495057; }
+        input, select, textarea { padding: 10px 12px; border: 1px solid #ced4da; border-radius: 10px; font-size: 14px; }
         button {
             background: #0b2b40;
             color: white;
@@ -186,12 +124,7 @@
             font-size: 0.9rem;
             min-height: 44px;
         }
-
-        button:hover {
-            background: #1c4e63;
-            transform: translateY(-1px);
-        }
-
+        button:hover { background: #1c4e63; transform: translateY(-1px); }
         .btn-success { background: #27ae60; }
         .btn-danger { background: #c0392b; }
         .btn-info { background: #3498db; }
@@ -203,7 +136,6 @@
             gap: 12px;
             margin-bottom: 15px;
         }
-
         .stat-card {
             color: white;
             padding: 15px;
@@ -212,72 +144,27 @@
             position: relative;
             overflow: hidden;
         }
-
-        .stat-card i {
-            position: absolute;
-            right: 10px;
-            bottom: 10px;
-            font-size: 2.5rem;
-            opacity: 0.2;
-        }
-
-        .stat-card h4 {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .stat-card .value {
-            font-size: 1.3rem;
-            font-weight: bold;
-        }
-
+        .stat-card i { position: absolute; right: 10px; bottom: 10px; font-size: 2.5rem; opacity: 0.2; }
+        .stat-card h4 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .stat-card .value { font-size: 1.3rem; font-weight: bold; }
         .stat-card.santos { background: linear-gradient(135deg, #2980b9, #3498db); }
         .stat-card.camacari { background: linear-gradient(135deg, #e67e22, #f39c12); }
         .stat-card.total { background: linear-gradient(135deg, #27ae60, #2ecc71); }
 
-        .dre-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
+        .dre-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
         .dre-card {
             background: white;
             border-radius: 16px;
             padding: 15px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border-top: 4px solid;
+            border-top: 4px solid #27ae60;
         }
+        .dre-card.geral { border-top-color: #27ae60; }
 
-        .dre-card.santos { border-top-color: #2980b9; }
-        .dre-card.camacari { border-top-color: #e67e22; }
-
-        .table-container {
-            overflow-x: auto;
-            margin-top: 10px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.75rem;
-            min-width: 500px;
-        }
-
-        th, td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #e9ecef;
-            text-align: left;
-        }
-
-        th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
+        .table-container { overflow-x: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; min-width: 500px; }
+        th, td { padding: 10px 8px; border-bottom: 1px solid #e9ecef; text-align: left; }
+        th { background: #f8f9fa; font-weight: 600; }
 
         .badge {
             display: inline-block;
@@ -286,34 +173,17 @@
             font-size: 0.65rem;
             font-weight: 600;
         }
-
         .badge-receita { background: #d4edda; color: #155724; }
         .badge-despesa { background: #f8d7da; color: #721c24; }
         .badge-santos { background: #d1ecf1; color: #0c5460; }
         .badge-camacari { background: #fff3cd; color: #856404; }
+        .badge-interno { background: #cce5ff; color: #004085; }
+        .badge-externo { background: #d4edda; color: #155724; }
 
-        .filter-bar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-            align-items: flex-end;
-        }
-
-        .filter-item {
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .chart-container {
-            max-height: 300px;
-            margin: 15px 0;
-        }
-
-        canvas {
-            max-height: 250px;
-            width: 100%;
-        }
+        .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: flex-end; }
+        .filter-item { flex: 1; min-width: 150px; }
+        .chart-container { max-height: 300px; margin: 15px 0; }
+        canvas { max-height: 250px; width: 100%; }
 
         .multi-select {
             border: 1px solid #ced4da;
@@ -323,26 +193,9 @@
             overflow-y: auto;
             background: white;
         }
-
-        .multi-select label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: normal;
-            margin: 0;
-        }
-
-        .multi-select label:hover {
-            background: #f0f2f5;
-        }
-
-        .multi-select input {
-            width: auto;
-            margin: 0;
-        }
+        .multi-select label { display: flex; align-items: center; gap: 8px; padding: 5px 8px; cursor: pointer; font-size: 0.8rem; margin: 0; }
+        .multi-select label:hover { background: #f0f2f5; }
+        .multi-select input { width: auto; margin: 0; }
 
         #authOverlay {
             position: fixed;
@@ -358,7 +211,6 @@
             justify-content: center;
             color: white;
         }
-
         .auth-box {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
@@ -367,12 +219,7 @@
             text-align: center;
             min-width: 280px;
         }
-
-        .auth-box input {
-            width: 100%;
-            margin: 15px 0;
-            text-align: center;
-        }
+        .auth-box input { width: 100%; margin: 10px 0; text-align: center; }
 
         .toast {
             position: fixed;
@@ -400,7 +247,6 @@
             justify-content: center;
             align-items: center;
         }
-
         .modal-content {
             background: white;
             border-radius: 20px;
@@ -410,7 +256,6 @@
             max-height: 80vh;
             overflow-y: auto;
         }
-
         .file-input-area {
             border: 2px dashed #ced4da;
             border-radius: 12px;
@@ -419,17 +264,20 @@
             margin-bottom: 15px;
             cursor: pointer;
         }
+        .total-soma {
+            background: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
 
         @media (max-width: 768px) {
-            .form-grid, .stats-grid, .dre-grid {
-                grid-template-columns: 1fr;
-            }
-            .filter-bar {
-                flex-direction: column;
-            }
-            .filter-item {
-                width: 100%;
-            }
+            .form-grid, .stats-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; }
+            .filter-item { width: 100%; }
         }
     </style>
 </head>
@@ -438,22 +286,42 @@
 <div id="authOverlay">
     <div class="auth-box">
         <i class="fas fa-snowflake" style="font-size: 2.5rem; margin-bottom: 15px;"></i>
-        <h2>Cryotronics ERP</h2>
-        <p>Sistema Multiplataforma</p>
+        <h2>Gestão Financeira Cryotronics</h2>
         <input type="password" id="pinInput" placeholder="Senha" autocomplete="off">
         <button onclick="login()" style="width: 100%;"><i class="fas fa-lock"></i> Acessar</button>
-        <p style="font-size: 0.7rem; margin-top: 10px;">Senha: 1234</p>
+        <button onclick="openChangePasswordModal()" style="width: 100%; margin-top: 10px; background: #f39c12;"><i class="fas fa-key"></i> Alterar Senha</button>
+    </div>
+</div>
+
+<!-- Modal Alterar Senha -->
+<div id="changePasswordModal" class="modal">
+    <div class="modal-content">
+        <h3><i class="fas fa-key"></i> Alterar Senha</h3>
+        <div class="form-group">
+            <label>Senha Atual</label>
+            <input type="password" id="currentPassword" placeholder="Digite a senha atual">
+        </div>
+        <div class="form-group">
+            <label>Nova Senha</label>
+            <input type="password" id="newPassword" placeholder="Digite a nova senha">
+        </div>
+        <div class="form-group">
+            <label>Confirmar Nova Senha</label>
+            <input type="password" id="confirmPassword" placeholder="Confirme a nova senha">
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="changePassword()" class="btn-success" style="flex:1;">Salvar</button>
+            <button onclick="closeChangePasswordModal()" class="btn-danger" style="flex:1;">Cancelar</button>
+        </div>
     </div>
 </div>
 
 <div id="mainApp" style="display: none;">
     <div class="header">
-        <h1><i class="fas fa-chart-line"></i> Cryotronics Cloud ERP</h1>
-        <div class="platform-badge" id="platformBadge"></div>
+        <h1><i class="fas fa-chart-line"></i> Gestão Financeira Cryotronics</h1>
+        <div class="platform-badge" onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Alterar Senha</div>
         <p>Controle Financeiro - Santos e Camaçari</p>
-        <div class="sync-status">
-            <i class="fas fa-cloud-upload-alt"></i> Sincronizado com a nuvem
-        </div>
+        <div class="sync-status"><i class="fas fa-cloud-upload-alt"></i> Sincronizado com a nuvem</div>
     </div>
 
     <div class="container">
@@ -467,73 +335,26 @@
         <!-- Dashboard Tab -->
         <div id="dashboard" class="tab-content active">
             <div class="stats-grid">
-                <div class="stat-card santos">
-                    <h4><i class="fas fa-building"></i> Unidade Santos</h4>
-                    <div class="value" id="santosRevenue">R$ 0,00</div>
-                    <small>Receitas</small>
-                    <div class="value" id="santosExpense" style="font-size: 1rem; margin-top: 5px;">R$ 0,00</div>
-                    <small>Despesas</small>
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="stat-card camacari">
-                    <h4><i class="fas fa-building"></i> Unidade Camaçari</h4>
-                    <div class="value" id="camacariRevenue">R$ 0,00</div>
-                    <small>Receitas</small>
-                    <div class="value" id="camacariExpense" style="font-size: 1rem; margin-top: 5px;">R$ 0,00</div>
-                    <small>Despesas</small>
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="stat-card total">
-                    <h4><i class="fas fa-chart-line"></i> Consolidado</h4>
-                    <div class="value" id="totalRevenue">R$ 0,00</div>
-                    <small>Receitas Totais</small>
-                    <div class="value" id="totalProfit" style="font-size: 1rem; margin-top: 5px;">R$ 0,00</div>
-                    <small>Lucro Total</small>
-                    <i class="fas fa-chart-line"></i>
-                </div>
+                <div class="stat-card santos"><h4><i class="fas fa-building"></i> Unidade Santos</h4><div class="value" id="santosRevenue">R$ 0,00</div><small>Receitas</small><div class="value" id="santosExpense" style="font-size: 1rem; margin-top: 5px;">R$ 0,00</div><small>Despesas</small><i class="fas fa-chart-line"></i></div>
+                <div class="stat-card camacari"><h4><i class="fas fa-building"></i> Unidade Camaçari</h4><div class="value" id="camacariRevenue">R$ 0,00</div><small>Receitas</small><div class="value" id="camacariExpense" style="font-size: 1rem; margin-top: 5px;">R$ 0,00</div><small>Despesas</small><i class="fas fa-chart-line"></i></div>
+                <div class="stat-card total"><h4><i class="fas fa-chart-line"></i> Consolidado</h4><div class="value" id="totalRevenue">R$ 0,00</div><small>Receitas Totais</small><div class="value" id="totalProfit" style="font-size: 1rem; margin-top: 5px;">R$ 0,00</div><small>Lucro Total</small><i class="fas fa-chart-line"></i></div>
             </div>
 
             <div class="card">
                 <h3><i class="fas fa-chart-bar"></i> Análise por Período e Contas</h3>
                 <div class="filter-bar">
-                    <div class="filter-item">
-                        <label>Data Início</label>
-                        <input type="date" id="dashStartDate" onchange="updateDashboard()">
-                    </div>
-                    <div class="filter-item">
-                        <label>Data Fim</label>
-                        <input type="date" id="dashEndDate" onchange="updateDashboard()">
-                    </div>
-                    <div class="filter-item">
-                        <label>Unidade</label>
-                        <select id="dashUnit" onchange="updateDashboard()">
-                            <option value="all">Todas</option>
-                            <option value="SANTOS">Santos</option>
-                            <option value="CAMACARI">Camaçari</option>
-                        </select>
-                    </div>
-                    <div class="filter-item">
-                        <button onclick="updateDashboard()" class="btn-info"><i class="fas fa-chart-line"></i> Atualizar</button>
-                        <button onclick="resetDashboardFilters()" class="btn-warning"><i class="fas fa-undo"></i> Reset</button>
-                    </div>
+                    <div class="filter-item"><label>Data Início</label><input type="date" id="dashStartDate" onchange="updateDashboard()"></div>
+                    <div class="filter-item"><label>Data Fim</label><input type="date" id="dashEndDate" onchange="updateDashboard()"></div>
+                    <div class="filter-item"><label>Unidade</label><select id="dashUnit" onchange="updateDashboard()"><option value="all">Todas</option><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
+                    <div class="filter-item"><button onclick="updateDashboard()" class="btn-info"><i class="fas fa-chart-line"></i> Atualizar</button><button onclick="resetDashboardFilters()" class="btn-warning"><i class="fas fa-undo"></i> Reset</button></div>
                 </div>
-                <div class="form-group">
-                    <label>Contas para Análise (selecione uma ou mais)</label>
-                    <div class="multi-select" id="accountMultiSelect"></div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
+                <div class="form-group"><label>Contas para Análise (selecione uma ou mais)</label><div class="multi-select" id="accountMultiSelect"></div></div>
+                <div class="chart-container"><canvas id="monthlyChart"></canvas></div>
             </div>
 
             <div class="card">
                 <h3><i class="fas fa-clock"></i> Últimos Lançamentos</h3>
-                <div class="table-container">
-                    <table id="recentTable">
-                        <thead>(\n<th>Data</th><th>Unidade</th><th>Descrição</th><th>Conta</th><th>Valor</th>\n</thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+                <div class="table-container"><table id="recentTable"><thead><tr><th>Data</th><th>Unidade</th><th>Descrição</th><th>Conta</th><th>Valor</th></tr></thead><tbody></tbody></table></div>
             </div>
         </div>
 
@@ -545,6 +366,7 @@
                     <div class="form-group"><label>Data *</label><input type="date" id="txDate"></div>
                     <div class="form-group"><label>Unidade *</label><select id="txUnit"><option value="">Selecione...</option><option value="SANTOS">🏢 Santos</option><option value="CAMACARI">🏭 Camaçari</option></select></div>
                     <div class="form-group"><label>Descrição *</label><input type="text" id="txDesc" placeholder="Ex: Manutenção"></div>
+                    <div class="form-group"><label>Tipo Serviço</label><select id="txServiceType"><option value="interno">Interno</option><option value="externo">Externo</option></select></div>
                     <div class="form-group"><label>Conta *</label><select id="txAccount"></select></div>
                     <div class="form-group"><label>Valor R$ *</label><input type="number" id="txValue" step="0.01" placeholder="0,00"></div>
                 </div>
@@ -560,9 +382,10 @@
                     <div class="filter-item"><label>Data Início</label><input type="date" id="filterStart"></div>
                     <div class="filter-item"><label>Data Fim</label><input type="date" id="filterEnd"></div>
                     <div class="filter-item"><label>Unidade</label><select id="filterUnit"><option value="">Todas</option><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
+                    <div class="filter-item"><label>Tipo Serviço</label><select id="filterServiceType"><option value="">Todos</option><option value="interno">Interno</option><option value="externo">Externo</option></select></div>
                     <div class="filter-item"><label>Tipo</label><select id="filterType"><option value="">Todos</option><option value="RECEITA">Receitas</option><option value="DESPESA">Despesas</option></select></div>
                     <div class="filter-item"><label>Contas</label><select id="filterAccountTrans"><option value="">Todas</option></select></div>
-                    <div class="filter-item"><button onclick="applyFilters()">Filtrar</button><button onclick="clearFilters()">Limpar</button></div>
+                    <div class="filter-item"><button onclick="applyFilters()"><i class="fas fa-search"></i> Filtrar</button><button onclick="clearFilters()"><i class="fas fa-undo"></i> Limpar</button></div>
                 </div>
             </div>
 
@@ -570,10 +393,11 @@
                 <h3>Lista de Lançamentos</h3>
                 <div class="table-container">
                     <table id="transactionsTable">
-                        <thead>(\n<th>Data</th><th>Unidade</th><th>Descrição</th><th>Conta</th><th>Valor</th><th>Ações</th>\n</thead>
+                        <thead><tr><th>Data</th><th>Unidade</th><th>Descrição</th><th>Tipo Serviço</th><th>Conta</th><th>Valor</th><th>Ações</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
+                <div id="totalFiltrado" class="total-soma">💰 Total dos Valores Filtrados: R$ 0,00</div>
             </div>
         </div>
 
@@ -590,9 +414,7 @@
             </div>
             <div class="card">
                 <h3>Plano de Contas</h3>
-                <div class="table-container">
-                    <table id="accountsTable"><thead>(\n<th>Código</th><th>Descrição</th><th>Tipo</th><th>Ações</th>\n</thead><tbody></tbody></table>
-                </div>
+                <div class="table-container"><table id="accountsTable"><thead><tr><th>Código</th><th>Descrição</th><th>Tipo</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
             </div>
         </div>
 
@@ -601,17 +423,19 @@
             <div class="card">
                 <h3><i class="fas fa-chart-bar"></i> DRE por Período</h3>
                 <div class="filter-bar">
-                    <div class="filter-item"><label>Data Início</label><input type="date" id="dreStartDate" onchange="updateDRE()"></div>
-                    <div class="filter-item"><label>Data Fim</label><input type="date" id="dreEndDate" onchange="updateDRE()"></div>
-                    <div class="filter-item"><label>Unidade</label><select id="dreUnit" onchange="updateDRE()"><option value="all">Todas</option><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
-                    <div class="filter-item"><button onclick="updateDRE()" class="btn-info">Calcular DRE</button></div>
+                    <div class="filter-item"><label>Data Início</label><input type="date" id="dreStartDate"></div>
+                    <div class="filter-item"><label>Data Fim</label><input type="date" id="dreEndDate"></div>
+                    <div class="filter-item"><label>Unidade</label><select id="dreUnit"><option value="all">Todas</option><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
+                    <div class="filter-item"><button onclick="updateDRE()" class="btn-info"><i class="fas fa-calculator"></i> Calcular DRE</button></div>
                 </div>
             </div>
-            <div class="dre-grid">
-                <div class="dre-card santos"><h4><i class="fas fa-building"></i> DRE - Santos</h4><div id="dreSantos"></div></div>
-                <div class="dre-card camacari"><h4><i class="fas fa-building"></i> DRE - Camaçari</h4><div id="dreCamacari"></div></div>
+            <div id="dreContainer" class="dre-grid">
+                <div class="dre-card geral">
+                    <h4><i class="fas fa-chart-line"></i> DRE - Geral</h4>
+                    <div id="dreGeral"></div>
+                </div>
             </div>
-            <div class="card"><h3>Comparativo</h3><div class="chart-container"><canvas id="dreChart"></canvas></div></div>
+            <div class="card"><h3>Gráfico Comparativo</h3><div class="chart-container"><canvas id="dreChart"></canvas></div></div>
         </div>
     </div>
 </div>
@@ -653,6 +477,7 @@
     let accounts = [], transactions = [];
     let monthlyChart = null, dreChart = null;
     let importedData = [];
+    let currentPassword = "1234";
 
     function detectPlatform() {
         const ua = navigator.userAgent;
@@ -663,12 +488,46 @@
     }
 
     function login() {
-        if (document.getElementById("pinInput").value === "1234") {
+        if (document.getElementById("pinInput").value === currentPassword) {
             document.getElementById("authOverlay").style.display = "none";
             document.getElementById("mainApp").style.display = "block";
             detectPlatform();
             initializeData();
         } else alert("Senha incorreta!");
+    }
+
+    function openChangePasswordModal() {
+        document.getElementById("changePasswordModal").style.display = "flex";
+        document.getElementById("currentPassword").value = "";
+        document.getElementById("newPassword").value = "";
+        document.getElementById("confirmPassword").value = "";
+    }
+
+    function closeChangePasswordModal() {
+        document.getElementById("changePasswordModal").style.display = "none";
+    }
+
+    function changePassword() {
+        const current = document.getElementById("currentPassword").value;
+        const newPass = document.getElementById("newPassword").value;
+        const confirm = document.getElementById("confirmPassword").value;
+
+        if (current !== currentPassword) {
+            alert("Senha atual incorreta!");
+            return;
+        }
+        if (newPass !== confirm) {
+            alert("Nova senha e confirmação não coincidem!");
+            return;
+        }
+        if (newPass.length < 4) {
+            alert("A nova senha deve ter pelo menos 4 caracteres!");
+            return;
+        }
+
+        currentPassword = newPass;
+        closeChangePasswordModal();
+        showToast("Senha alterada com sucesso!");
     }
 
     function showToast(msg, isError = false) {
@@ -742,20 +601,42 @@
         const date = document.getElementById("txDate").value;
         const unit = document.getElementById("txUnit").value;
         const desc = document.getElementById("txDesc").value.trim();
+        const serviceType = document.getElementById("txServiceType").value;
         const accountId = document.getElementById("txAccount").value;
         const value = parseFloat(document.getElementById("txValue").value);
         if (!date || !unit || !desc || !accountId || isNaN(value) || value <= 0) return alert("Preencha todos os campos!");
         const account = accounts.find(a => a.id === accountId);
         db.ref('transactions').push({
-            date, unit, description: desc, accountId,
+            date, unit, description: desc, serviceType, accountId,
             accountCode: account.cod, accountName: account.nome,
             value, type: account.tipo === "RECEITA" ? "RECEITA" : "DESPESA", timestamp: Date.now()
         }).then(() => {
             showToast(`Salvo em ${unit === 'SANTOS' ? 'Santos' : 'Camaçari'}`);
             document.getElementById("txDesc").value = "";
             document.getElementById("txValue").value = "";
-            document.getElementById("txUnit").value = "";
         });
+    }
+
+    function updateTransaction(id, newData) {
+        db.ref('transactions/' + id).update(newData).then(() => {
+            showToast("Lançamento atualizado!");
+        });
+    }
+
+    function editTransaction(id, currentData) {
+        const newDate = prompt("Nova data (AAAA-MM-DD):", currentData.date);
+        const newDesc = prompt("Nova descrição:", currentData.description);
+        const newValue = prompt("Novo valor:", currentData.value);
+        if (newDate && newDesc && newValue && !isNaN(parseFloat(newValue))) {
+            updateTransaction(id, {
+                date: newDate,
+                description: newDesc,
+                value: parseFloat(newValue),
+                timestamp: Date.now()
+            });
+        } else {
+            alert("Preencha todos os campos corretamente!");
+        }
     }
 
     function renderAccounts() {
@@ -797,33 +678,40 @@
         const start = document.getElementById("filterStart").value;
         const end = document.getElementById("filterEnd").value;
         const unit = document.getElementById("filterUnit").value;
+        const serviceType = document.getElementById("filterServiceType").value;
         const tipo = document.getElementById("filterType").value;
         const accFilter = document.getElementById("filterAccountTrans").value;
         if (start) filtered = filtered.filter(t => t.date >= start);
         if (end) filtered = filtered.filter(t => t.date <= end);
         if (unit) filtered = filtered.filter(t => t.unit === unit);
+        if (serviceType) filtered = filtered.filter(t => t.serviceType === serviceType);
         if (tipo) filtered = filtered.filter(t => t.type === tipo);
         if (accFilter) filtered = filtered.filter(t => t.accountId === accFilter);
         filtered.sort((a,b)=>b.date.localeCompare(a.date));
+        
+        const totalFiltrado = filtered.reduce((sum, t) => sum + t.value, 0);
+        document.getElementById("totalFiltrado").innerHTML = `💰 Total dos Valores Filtrados: R$ ${totalFiltrado.toFixed(2)}`;
+        
         const tbody = document.querySelector("#transactionsTable tbody");
         if (tbody) {
             tbody.innerHTML = "";
             filtered.forEach(t => {
-                tbody.innerHTML += `<tr><td>${t.date.split('-').reverse().join('/')}</td>
-                <td><span class="badge ${t.unit==='SANTOS'?'badge-santos':'badge-camacari'}">${t.unit==='SANTOS'?'Santos':'Camaçari'}</span></td>
-                <td>${t.description}</td><td><small>${t.accountCode}</small><br>${t.accountName}</td>
-                <td style="color:${t.type==='RECEITA'?'#27ae60':'#c0392b'}">R$ ${t.value.toFixed(2)}</td>
-                <td><button onclick="deleteTransaction('${t.id}')" class="btn-danger"><i class="fas fa-trash"></i></button></td></tr>`;
+                tbody.innerHTML += `<tr>
+                    <td>${t.date.split('-').reverse().join('/')}</td>
+                    <td><span class="badge ${t.unit==='SANTOS'?'badge-santos':'badge-camacari'}">${t.unit==='SANTOS'?'Santos':'Camaçari'}</span></td>
+                    <td>${t.description}</td>
+                    <td><span class="badge ${t.serviceType==='interno'?'badge-interno':'badge-externo'}">${t.serviceType==='interno'?'Interno':'Externo'}</span></td>
+                    <td><small>${t.accountCode}</small><br>${t.accountName}</td>
+                    <td style="color:${t.type==='RECEITA'?'#27ae60':'#c0392b'}; font-weight:bold;">R$ ${t.value.toFixed(2)}</td>
+                    <td><button onclick="editTransaction('${t.id}', {date:'${t.date}', description:'${t.description.replace(/'/g, "\\'")}', value:${t.value}})" class="btn-warning" style="padding:5px 10px; margin-right:5px;"><i class="fas fa-edit"></i></button><button onclick="deleteTransaction('${t.id}')" class="btn-danger" style="padding:5px 10px;"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
             });
         }
         const recentTbody = document.querySelector("#recentTable tbody");
         if (recentTbody) {
             recentTbody.innerHTML = "";
             filtered.slice(0,10).forEach(t => {
-                recentTbody.innerHTML += `<tr><td>${t.date.split('-').reverse().join('/')}</td>
-                <td><span class="badge ${t.unit==='SANTOS'?'badge-santos':'badge-camacari'}">${t.unit==='SANTOS'?'Santos':'Camaçari'}</span></td>
-                <td>${t.description}</td><td><small>${t.accountCode}</small></td>
-                <td style="color:${t.type==='RECEITA'?'#27ae60':'#c0392b'}">R$ ${t.value.toFixed(2)}</td></tr>`;
+                recentTbody.innerHTML += `<tr><td>${t.date.split('-').reverse().join('/')}</td><td><span class="badge ${t.unit==='SANTOS'?'badge-santos':'badge-camacari'}">${t.unit==='SANTOS'?'Santos':'Camaçari'}</span></td><td>${t.description}</td><td><small>${t.accountCode}</small></td><td style="color:${t.type==='RECEITA'?'#27ae60':'#c0392b'}">R$ ${t.value.toFixed(2)}</td></tr>`;
             });
         }
     }
@@ -833,6 +721,7 @@
         document.getElementById("filterStart").value = "";
         document.getElementById("filterEnd").value = "";
         document.getElementById("filterUnit").value = "";
+        document.getElementById("filterServiceType").value = "";
         document.getElementById("filterType").value = "";
         document.getElementById("filterAccountTrans").value = "";
         renderTransactions();
@@ -890,36 +779,43 @@
         const unit = document.getElementById("dreUnit").value;
         if (start) filtered = filtered.filter(t => t.date >= start);
         if (end) filtered = filtered.filter(t => t.date <= end);
-        if (unit !== "all") filtered = filtered.filter(t => t.unit === unit);
-        function calc(unitFilter) {
-            const unitTrans = unit === "all" ? filtered : filtered.filter(t => t.unit === unitFilter);
-            const receitas = unitTrans.filter(t => t.type === "RECEITA").reduce((s,t)=>s+t.value,0);
-            const custos = unitTrans.filter(t => t.type === "DESPESA" && (t.accountName.includes("Custo") || t.accountName.includes("Insumo"))).reduce((s,t)=>s+t.value,0);
-            const despesas = unitTrans.filter(t => t.type === "DESPESA" && !t.accountName.includes("Custo")).reduce((s,t)=>s+t.value,0);
-            return { receitas, custos, despesas, lucro: receitas - custos - despesas };
+        
+        function calcDRE(transactionsList) {
+            const receitas = transactionsList.filter(t => t.type === "RECEITA").reduce((s,t)=>s+t.value,0);
+            const custos = transactionsList.filter(t => t.type === "DESPESA" && (t.accountName.includes("Custo") || t.accountName.includes("Insumo"))).reduce((s,t)=>s+t.value,0);
+            const despesas = transactionsList.filter(t => t.type === "DESPESA" && !t.accountName.includes("Custo") && !t.accountName.includes("Insumo")).reduce((s,t)=>s+t.value,0);
+            const lucro = receitas - custos - despesas;
+            return { receitas, custos, despesas, lucro };
         }
-        const santos = unit === "all" ? calc("SANTOS") : (unit === "SANTOS" ? calc("SANTOS") : { receitas:0, custos:0, despesas:0, lucro:0 });
-        const camacari = unit === "all" ? calc("CAMACARI") : (unit === "CAMACARI" ? calc("CAMACARI") : { receitas:0, custos:0, despesas:0, lucro:0 });
-        document.getElementById("dreSantos").innerHTML = `<table class="dre-table"><tr><td>Receitas</td><td>R$ ${santos.receitas.toFixed(2)}</td></tr>
-            <tr><td>Custos</td><td>R$ ${santos.custos.toFixed(2)}</td></tr><tr><td>Despesas</td><td>R$ ${santos.despesas.toFixed(2)}</td></tr>
-            <tr style="border-top:2px solid #2980b9;"><td><strong>Lucro</strong></td><td><strong>R$ ${santos.lucro.toFixed(2)}</strong></td></tr></table>`;
-        document.getElementById("dreCamacari").innerHTML = `<table class="dre-table"><tr><td>Receitas</td><td>R$ ${camacari.receitas.toFixed(2)}</td></tr>
-            <tr><td>Custos</td><td>R$ ${camacari.custos.toFixed(2)}</td></tr><tr><td>Despesas</td><td>R$ ${camacari.despesas.toFixed(2)}</td></tr>
-            <tr style="border-top:2px solid #e67e22;"><td><strong>Lucro</strong></td><td><strong>R$ ${camacari.lucro.toFixed(2)}</strong></td></tr></table>`;
+        
+        let geralData;
+        if (unit === "all") {
+            geralData = calcDRE(filtered);
+        } else {
+            geralData = calcDRE(filtered.filter(t => t.unit === unit));
+        }
+        
+        document.getElementById("dreGeral").innerHTML = `<table class="dre-table">
+            <tr><td>Receitas Totais</td><td style="text-align:right">R$ ${geralData.receitas.toFixed(2)}</td></tr>
+            <tr><td>(-) Custos Operacionais</td><td style="text-align:right">R$ ${geralData.custos.toFixed(2)}</td></tr>
+            <tr style="border-top:1px solid #ddd;"><td><strong>Margem Bruta</strong></td><td style="text-align:right"><strong>R$ ${(geralData.receitas - geralData.custos).toFixed(2)}</strong></td></tr>
+            <tr><td>(-) Despesas Operacionais</td><td style="text-align:right">R$ ${geralData.despesas.toFixed(2)}</td></tr>
+            <tr style="border-top:2px solid #27ae60;"><td><strong>Lucro Líquido</strong></td><td style="text-align:right"><strong style="color:${geralData.lucro >= 0 ? '#27ae60' : '#c0392b'}">R$ ${geralData.lucro.toFixed(2)}</strong></td></tr>
+        </table>`;
+        
         const ctx = document.getElementById('dreChart').getContext('2d');
         if (dreChart) dreChart.destroy();
         dreChart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: ['Santos', 'Camaçari'],
-                    datasets: [{ label: 'Receitas', data: [santos.receitas, camacari.receitas], backgroundColor: '#27ae60' },
-                               { label: 'Custos+Despesas', data: [santos.custos+santos.despesas, camacari.custos+camacari.despesas], backgroundColor: '#c0392b' },
-                               { label: 'Lucro', data: [santos.lucro, camacari.lucro], backgroundColor: '#2980b9' }] },
+            data: { labels: ['Receitas', 'Custos', 'Despesas', 'Lucro'],
+                    datasets: [{ label: 'Valores (R$)', data: [geralData.receitas, geralData.custos, geralData.despesas, geralData.lucro],
+                                backgroundColor: ['#27ae60', '#c0392b', '#e67e22', '#2980b9'], borderRadius: 8 }] },
             options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { callback: v => `R$ ${v}` } } } }
         });
     }
 
     function exportToExcel() {
-        const data = transactions.map(t => ({ Data: t.date, Unidade: t.unit==='SANTOS'?'Santos':'Camaçari', Descrição: t.description, Conta: t.accountName, Tipo: t.type, Valor: t.value }));
+        const data = transactions.map(t => ({ Data: t.date, Unidade: t.unit==='SANTOS'?'Santos':'Camaçari', 'Tipo Serviço': t.serviceType, Descrição: t.description, Conta: t.accountName, Tipo: t.type, Valor: t.value }));
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Lançamentos");
@@ -961,7 +857,7 @@
             importedData = json.map(row => ({ data: row[colMap.data], descricao: row[colMap.desc],
                 unidade: (row[colMap.unid]||"").toString().toUpperCase().includes("SANTOS")?"SANTOS":"CAMACARI",
                 conta: row[colMap.conta], tipo: (row[colMap.tipo]||"").toString().toUpperCase().includes("REC")?"RECEITA":"DESPESA",
-                valor: parseFloat(row[colMap.valor])||0 })).filter(i=>i.data&&i.descricao&&i.valor>0);
+                valor: parseFloat(row[colMap.valor])||0, serviceType: "interno" })).filter(i=>i.data&&i.descricao&&i.valor>0);
             let html = '<table><thead><tr><th>Data</th><th>Descrição</th><th>Unidade</th><th>Valor</th></tr></thead><tbody>';
             importedData.slice(0,10).forEach(i=>html+=`<tr><td>${i.data}</td><td>${i.descricao.substring(0,30)}</td><td>${i.unidade==='SANTOS'?'Santos':'Camaçari'}</td><td>R$ ${i.valor.toFixed(2)}</td></tr>`);
             html+=`</tbody></table><p>Total: ${importedData.length} registros</p>`;
@@ -982,7 +878,7 @@
                     await newRef.set({ cod: item.conta, nome: item.conta, tipo: item.tipo });
                     account = { id: newRef.key, cod: item.conta, nome: item.conta, tipo: item.tipo };
                 }
-                await db.ref('transactions').push({ date: item.data, unit: item.unidade, description: item.descricao,
+                await db.ref('transactions').push({ date: item.data, unit: item.unidade, description: item.descricao, serviceType: item.serviceType,
                     accountId: account.id, accountCode: account.cod, accountName: account.nome,
                     value: item.valor, type: item.tipo, timestamp: Date.now() });
                 success++;
