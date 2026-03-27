@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CryoERP">
@@ -15,7 +16,7 @@
     
     <!-- Bibliotecas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
@@ -129,6 +130,8 @@
         .btn-danger { background: #c0392b; }
         .btn-info { background: #3498db; }
         .btn-warning { background: #f39c12; }
+        .btn-exclude { background: #e67e22; }
+        .btn-excluded { background: #95a5a6; }
 
         .stats-grid {
             display: grid;
@@ -159,7 +162,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             border-top: 4px solid #27ae60;
         }
-        .dre-card.geral { border-top-color: #27ae60; }
 
         .table-container { overflow-x: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; font-size: 0.75rem; min-width: 500px; }
@@ -179,6 +181,7 @@
         .badge-camacari { background: #fff3cd; color: #856404; }
         .badge-interno { background: #cce5ff; color: #004085; }
         .badge-externo { background: #d4edda; color: #155724; }
+        .badge-excluded { background: #e9ecef; color: #6c757d; text-decoration: line-through; }
 
         .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: flex-end; }
         .filter-item { flex: 1; min-width: 150px; }
@@ -321,7 +324,9 @@
         <h1><i class="fas fa-chart-line"></i> Gestão Financeira Cryotronics</h1>
         <div class="platform-badge" onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Alterar Senha</div>
         <p>Controle Financeiro - Santos e Camaçari</p>
-        <div class="sync-status"><i class="fas fa-cloud-upload-alt"></i> Sincronizado com a nuvem</div>
+        <div class="sync-status">
+            <i class="fas fa-cloud-upload-alt"></i> Sincronizado com a nuvem
+        </div>
     </div>
 
     <div class="container">
@@ -343,9 +348,9 @@
             <div class="card">
                 <h3><i class="fas fa-chart-bar"></i> Análise por Período e Contas</h3>
                 <div class="filter-bar">
-                    <div class="filter-item"><label>Data Início</label><input type="date" id="dashStartDate" onchange="updateDashboard()"></div>
-                    <div class="filter-item"><label>Data Fim</label><input type="date" id="dashEndDate" onchange="updateDashboard()"></div>
-                    <div class="filter-item"><label>Unidade</label><select id="dashUnit" onchange="updateDashboard()"><option value="all">Todas</option><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
+                    <div class="filter-item"><label>Data Início</label><input type="date" id="dashStartDate"></div>
+                    <div class="filter-item"><label>Data Fim</label><input type="date" id="dashEndDate"></div>
+                    <div class="filter-item"><label>Unidade</label><select id="dashUnit"><option value="all">Todas</option><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
                     <div class="filter-item"><button onclick="updateDashboard()" class="btn-info"><i class="fas fa-chart-line"></i> Atualizar</button><button onclick="resetDashboardFilters()" class="btn-warning"><i class="fas fa-undo"></i> Reset</button></div>
                 </div>
                 <div class="form-group"><label>Contas para Análise (selecione uma ou mais)</label><div class="multi-select" id="accountMultiSelect"></div></div>
@@ -414,7 +419,7 @@
             </div>
             <div class="card">
                 <h3>Plano de Contas</h3>
-                <div class="table-container"><table id="accountsTable"><thead><tr><th>Código</th><th>Descrição</th><th>Tipo</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-container"><table id="accountsTable"><thead><tr><th>Código</th><th>Descrição</th><th>Tipo</th><th>Status DRE</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
             </div>
         </div>
 
@@ -427,6 +432,10 @@
                     <div class="filter-item"><label>Data Fim</label><input type="date" id="dreEndDate"></div>
                     <div class="filter-item"><label>Unidade</label><select id="dreUnit"><option value="all">Todas</option><option value="SANTOS">Santos</option><option value="CAMACARI">Camaçari</option></select></div>
                     <div class="filter-item"><button onclick="updateDRE()" class="btn-info"><i class="fas fa-calculator"></i> Calcular DRE</button></div>
+                </div>
+                <div class="form-group">
+                    <label>Contas EXCLUÍDAS do DRE (clique para adicionar/remover)</label>
+                    <div class="multi-select" id="excludedAccountsSelect"></div>
                 </div>
             </div>
             <div id="dreContainer" class="dre-grid">
@@ -474,8 +483,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let accounts = [], transactions = [];
-    let monthlyChart = null, dreChart = null;
+    let accounts = [];
+    let transactions = [];
+    let excludedAccounts = []; // IDs das contas excluídas do DRE
+    let monthlyChart = null;
+    let dreChart = null;
     let importedData = [];
     let currentPassword = "1234";
 
@@ -492,8 +504,61 @@
             document.getElementById("authOverlay").style.display = "none";
             document.getElementById("mainApp").style.display = "block";
             detectPlatform();
+            loadExcludedAccounts();
             initializeData();
-        } else alert("Senha incorreta!");
+        } else {
+            alert("Senha incorreta!");
+        }
+    }
+
+    function loadExcludedAccounts() {
+        const stored = localStorage.getItem("dreExcludedAccounts");
+        if (stored) {
+            excludedAccounts = JSON.parse(stored);
+        } else {
+            excludedAccounts = [];
+        }
+    }
+
+    function saveExcludedAccounts() {
+        localStorage.setItem("dreExcludedAccounts", JSON.stringify(excludedAccounts));
+        renderExcludedAccountsSelect();
+        updateDRE();
+    }
+
+    function toggleExcludeAccount(accountId) {
+        const index = excludedAccounts.indexOf(accountId);
+        if (index === -1) {
+            excludedAccounts.push(accountId);
+        } else {
+            excludedAccounts.splice(index, 1);
+        }
+        saveExcludedAccounts();
+        showToast(excludedAccounts.includes(accountId) ? "Conta excluída do DRE" : "Conta incluída no DRE");
+    }
+
+    function isExcluded(accountId) {
+        return excludedAccounts.includes(accountId);
+    }
+
+    function renderExcludedAccountsSelect() {
+        const container = document.getElementById("excludedAccountsSelect");
+        if (!container) return;
+        
+        container.innerHTML = '';
+        accounts.sort((a,b)=> (a.cod || "").localeCompare(b.cod || "", undefined, { numeric: true })).forEach(acc => {
+            if (acc.cod && acc.nome) {
+                const isExcludedFlag = isExcluded(acc.id);
+                container.innerHTML += `
+                    <label style="display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; border-bottom: 1px solid #eee;">
+                        <span>${acc.cod} - ${acc.nome}</span>
+                        <button onclick="toggleExcludeAccount('${acc.id}')" class="${isExcludedFlag ? 'btn-excluded' : 'btn-exclude'}" style="padding: 4px 12px; font-size: 0.7rem;">
+                            ${isExcludedFlag ? '✓ Incluir' : '✗ Excluir'}
+                        </button>
+                    </label>
+                `;
+            }
+        });
     }
 
     function openChangePasswordModal() {
@@ -539,33 +604,47 @@
         setTimeout(() => toast.remove(), 3000);
     }
 
-    const FULL_ACCOUNT_PLAN = [
-        { cod: "1.1.1.01", nome: "Caixa Geral Cartão", tipo: "ATIVO" },
-        { cod: "3.1.1.03", nome: "Venda de Serviços", tipo: "RECEITA" },
-        { cod: "3.2.1.01", nome: "Custos dos Insumos", tipo: "CUSTO" },
-        { cod: "3.2.2.01", nome: "Despesas Administrativas", tipo: "DESPESA" },
-        { cod: "2.1.5.04", nome: "Aluguel", tipo: "DESPESA" }
-    ];
-
     function initializeData() {
-        db.ref('accounts').once('value', snap => {
-            if (!snap.exists()) FULL_ACCOUNT_PLAN.forEach(acc => db.ref('accounts').push(acc));
-        });
-        db.ref('accounts').on('value', snap => {
-            accounts = snap.val() ? Object.entries(snap.val()).map(([id, acc]) => ({ id, ...acc })) : [];
+        console.log("🔄 Iniciando carregamento dos dados...");
+        
+        db.ref('accounts').once('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && Object.keys(data).length > 0) {
+                accounts = Object.entries(data).map(([id, acc]) => ({ id, ...acc }));
+                console.log(`✅ ${accounts.length} contas carregadas com sucesso!`);
+            } else {
+                accounts = [];
+            }
             renderAccounts();
             updateAccountSelects();
             renderAccountMultiSelect();
+            renderExcludedAccountsSelect();
+        }).catch(error => {
+            console.error("Erro ao carregar contas:", error);
+            showToast("Erro ao carregar contas!", true);
         });
-        db.ref('transactions').on('value', snap => {
-            transactions = snap.val() ? Object.entries(snap.val()).map(([id, t]) => ({ id, ...t })) : [];
+        
+        db.ref('transactions').once('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && Object.keys(data).length > 0) {
+                transactions = Object.entries(data).map(([id, trans]) => ({ id, ...trans }));
+                console.log(`✅ ${transactions.length} lançamentos carregados com sucesso!`);
+            } else {
+                transactions = [];
+            }
             renderTransactions();
             updateDashboard();
             updateDRE();
+            showToast(`✅ ${transactions.length} lançamentos carregados!`);
+        }).catch(error => {
+            console.error("Erro ao carregar transações:", error);
+            showToast("Erro ao carregar lançamentos!", true);
         });
+        
         const today = new Date();
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0,10);
         const lastDay = today.toISOString().slice(0,10);
+        
         document.getElementById("txDate").valueAsDate = today;
         document.getElementById("dashStartDate").value = firstDay;
         document.getElementById("dashEndDate").value = lastDay;
@@ -578,10 +657,15 @@
     function renderAccountMultiSelect() {
         const container = document.getElementById("accountMultiSelect");
         if (!container) return;
-        container.innerHTML = '<label style="padding:8px"><input type="checkbox" id="selectAllAccounts" onchange="toggleAllAccounts()"> Selecionar Todas</label>';
-        accounts.sort((a,b)=>a.cod.localeCompare(b.cod)).forEach(acc => {
-            container.innerHTML += `<label><input type="checkbox" class="account-checkbox" value="${acc.id}" onchange="updateDashboard()"> ${acc.cod} - ${acc.nome}</label>`;
+        container.innerHTML = '<label style="padding:8px; background:#e9ecef;"><input type="checkbox" id="selectAllAccounts" onchange="toggleAllAccounts()"> Selecionar Todas</label>';
+        accounts.sort((a,b)=> (a.cod || "").localeCompare(b.cod || "", undefined, { numeric: true })).forEach(acc => {
+            if (acc.cod && acc.nome) {
+                container.innerHTML += `<label><input type="checkbox" class="account-checkbox" value="${acc.id}" onchange="updateDashboard()"> ${acc.cod} - ${acc.nome}</label>`;
+            }
         });
+        const selectAll = document.getElementById("selectAllAccounts");
+        if (selectAll) selectAll.checked = true;
+        document.querySelectorAll(".account-checkbox").forEach(cb => cb.checked = true);
     }
 
     function toggleAllAccounts() {
@@ -604,47 +688,58 @@
         const serviceType = document.getElementById("txServiceType").value;
         const accountId = document.getElementById("txAccount").value;
         const value = parseFloat(document.getElementById("txValue").value);
-        if (!date || !unit || !desc || !accountId || isNaN(value) || value <= 0) return alert("Preencha todos os campos!");
+        
+        if (!date || !unit || !desc || !accountId || isNaN(value) || value <= 0) {
+            alert("Preencha todos os campos obrigatórios!");
+            return;
+        }
+        
         const account = accounts.find(a => a.id === accountId);
+        if (!account) {
+            alert("Conta não encontrada!");
+            return;
+        }
+        
         db.ref('transactions').push({
-            date, unit, description: desc, serviceType, accountId,
-            accountCode: account.cod, accountName: account.nome,
-            value, type: account.tipo === "RECEITA" ? "RECEITA" : "DESPESA", timestamp: Date.now()
+            date: date,
+            unit: unit,
+            description: desc,
+            serviceType: serviceType,
+            accountId: accountId,
+            accountCode: account.cod,
+            accountName: account.nome,
+            value: value,
+            type: account.tipo === "RECEITA" ? "RECEITA" : "DESPESA",
+            timestamp: Date.now()
         }).then(() => {
             showToast(`Salvo em ${unit === 'SANTOS' ? 'Santos' : 'Camaçari'}`);
             document.getElementById("txDesc").value = "";
             document.getElementById("txValue").value = "";
+            initializeData();
+        }).catch(error => {
+            showToast("Erro ao salvar!", true);
         });
-    }
-
-    function updateTransaction(id, newData) {
-        db.ref('transactions/' + id).update(newData).then(() => {
-            showToast("Lançamento atualizado!");
-        });
-    }
-
-    function editTransaction(id, currentData) {
-        const newDate = prompt("Nova data (AAAA-MM-DD):", currentData.date);
-        const newDesc = prompt("Nova descrição:", currentData.description);
-        const newValue = prompt("Novo valor:", currentData.value);
-        if (newDate && newDesc && newValue && !isNaN(parseFloat(newValue))) {
-            updateTransaction(id, {
-                date: newDate,
-                description: newDesc,
-                value: parseFloat(newValue),
-                timestamp: Date.now()
-            });
-        } else {
-            alert("Preencha todos os campos corretamente!");
-        }
     }
 
     function renderAccounts() {
         const tbody = document.querySelector("#accountsTable tbody");
         if (!tbody) return;
         tbody.innerHTML = "";
-        accounts.sort((a,b)=>a.cod.localeCompare(b.cod,undefined,{numeric:true})).forEach(acc => {
-            tbody.innerHTML += `<tr><td><strong>${acc.cod}</strong></td><td>${acc.nome}</td><td><span class="badge">${acc.tipo}</span></td><td><button onclick="deleteAccount('${acc.id}')" class="btn-danger" style="padding:5px 10px;"><i class="fas fa-trash"></i></button></td></tr>`;
+        accounts.sort((a,b)=> (a.cod || "").localeCompare(b.cod || "", undefined, { numeric: true })).forEach(acc => {
+            if (acc.cod && acc.nome) {
+                const excludedStatus = isExcluded(acc.id);
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${acc.cod}</strong></td>
+                        <td>${acc.nome}</td>
+                        <td><span class="badge">${acc.tipo || "N/A"}</span></td>
+                        <td><span class="badge ${excludedStatus ? 'badge-excluded' : ''}">${excludedStatus ? 'Excluído do DRE' : 'Incluído no DRE'}</span></td>
+                        <td>
+                            <button onclick="deleteAccount('${acc.id}')" class="btn-danger" style="padding:5px 10px;"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }
         });
     }
 
@@ -652,14 +747,26 @@
         const cod = document.getElementById("newAccCode").value.trim();
         const nome = document.getElementById("newAccName").value.trim();
         const tipo = document.getElementById("newAccType").value;
-        if (!cod || !nome) return alert("Preencha código e nome!");
-        db.ref('accounts').push({ cod, nome, tipo });
-        document.getElementById("newAccCode").value = "";
-        document.getElementById("newAccName").value = "";
-        showToast("Conta adicionada!");
+        if (!cod || !nome) {
+            alert("Preencha código e nome da conta!");
+            return;
+        }
+        db.ref('accounts').push({ cod, nome, tipo }).then(() => {
+            showToast("Conta adicionada!");
+            document.getElementById("newAccCode").value = "";
+            document.getElementById("newAccName").value = "";
+            initializeData();
+        });
     }
 
-    function deleteAccount(id) { if(confirm("Excluir?")) db.ref('accounts/'+id).remove(); }
+    function deleteAccount(id) {
+        if (confirm("Tem certeza que deseja excluir esta conta?")) {
+            db.ref('accounts/' + id).remove().then(() => {
+                showToast("Conta excluída!");
+                initializeData();
+            });
+        }
+    }
 
     function updateAccountSelects() {
         const selects = ["txAccount", "filterAccountTrans"];
@@ -667,11 +774,41 @@
             const sel = document.getElementById(selId);
             if (!sel) return;
             sel.innerHTML = '<option value="">Selecione...</option>';
-            accounts.forEach(acc => sel.innerHTML += `<option value="${acc.id}">${acc.cod} - ${acc.nome}</option>`);
+            accounts.forEach(acc => {
+                if (acc.cod && acc.nome) {
+                    sel.innerHTML += `<option value="${acc.id}">${acc.cod} - ${acc.nome}</option>`;
+                }
+            });
         });
     }
 
-    function deleteTransaction(id) { if(confirm("Excluir?")) db.ref('transactions/'+id).remove(); }
+    function deleteTransaction(id) {
+        if (confirm("Deseja excluir este lançamento?")) {
+            db.ref('transactions/' + id).remove().then(() => {
+                showToast("Lançamento excluído!");
+                initializeData();
+            });
+        }
+    }
+
+    function editTransaction(id, currentData) {
+        const newDate = prompt("Nova data (AAAA-MM-DD):", currentData.date);
+        const newDesc = prompt("Nova descrição:", currentData.description);
+        const newValue = prompt("Novo valor:", currentData.value);
+        if (newDate && newDesc && newValue && !isNaN(parseFloat(newValue))) {
+            db.ref('transactions/' + id).update({
+                date: newDate,
+                description: newDesc,
+                value: parseFloat(newValue),
+                timestamp: Date.now()
+            }).then(() => {
+                showToast("Lançamento atualizado!");
+                initializeData();
+            });
+        } else {
+            alert("Preencha todos os campos corretamente!");
+        }
+    }
 
     function renderTransactions() {
         let filtered = [...transactions];
@@ -681,6 +818,7 @@
         const serviceType = document.getElementById("filterServiceType").value;
         const tipo = document.getElementById("filterType").value;
         const accFilter = document.getElementById("filterAccountTrans").value;
+        
         if (start) filtered = filtered.filter(t => t.date >= start);
         if (end) filtered = filtered.filter(t => t.date <= end);
         if (unit) filtered = filtered.filter(t => t.unit === unit);
@@ -690,36 +828,55 @@
         filtered.sort((a,b)=>b.date.localeCompare(a.date));
         
         const totalFiltrado = filtered.reduce((sum, t) => sum + t.value, 0);
-        document.getElementById("totalFiltrado").innerHTML = `💰 Total dos Valores Filtrados: R$ ${totalFiltrado.toFixed(2)}`;
+        const totalDiv = document.getElementById("totalFiltrado");
+        if (totalDiv) totalDiv.innerHTML = `💰 Total dos Valores Filtrados: R$ ${totalFiltrado.toFixed(2)}`;
         
         const tbody = document.querySelector("#transactionsTable tbody");
         if (tbody) {
             tbody.innerHTML = "";
             filtered.forEach(t => {
-                tbody.innerHTML += `<tr>
-                    <td>${t.date.split('-').reverse().join('/')}</td>
-                    <td><span class="badge ${t.unit==='SANTOS'?'badge-santos':'badge-camacari'}">${t.unit==='SANTOS'?'Santos':'Camaçari'}</span></td>
-                    <td>${t.description}</td>
-                    <td><span class="badge ${t.serviceType==='interno'?'badge-interno':'badge-externo'}">${t.serviceType==='interno'?'Interno':'Externo'}</span></td>
-                    <td><small>${t.accountCode}</small><br>${t.accountName}</td>
-                    <td style="color:${t.type==='RECEITA'?'#27ae60':'#c0392b'}; font-weight:bold;">R$ ${t.value.toFixed(2)}</td>
-                    <td><button onclick="editTransaction('${t.id}', {date:'${t.date}', description:'${t.description.replace(/'/g, "\\'")}', value:${t.value}})" class="btn-warning" style="padding:5px 10px; margin-right:5px;"><i class="fas fa-edit"></i></button><button onclick="deleteTransaction('${t.id}')" class="btn-danger" style="padding:5px 10px;"><i class="fas fa-trash"></i></button></td>
-                </tr>`;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${t.date ? t.date.split('-').reverse().join('/') : ''}</td>
+                        <td><span class="badge ${t.unit === 'SANTOS' ? 'badge-santos' : 'badge-camacari'}">${t.unit === 'SANTOS' ? 'Santos' : 'Camaçari'}</span></td>
+                        <td>${t.description || ''}</td>
+                        <td><span class="badge ${t.serviceType === 'interno' ? 'badge-interno' : 'badge-externo'}">${t.serviceType === 'interno' ? 'Interno' : 'Externo'}</span></td>
+                        <td><small>${t.accountCode || ''}</small><br>${t.accountName || ''}</td>
+                        <td style="color:${t.type === 'RECEITA' ? '#27ae60' : '#c0392b'}; font-weight:bold;">R$ ${(t.value || 0).toFixed(2)}</td>
+                        <td>
+                            <button onclick="editTransaction('${t.id}', {date:'${t.date || ''}', description: '${(t.description || '').replace(/'/g, "\\'")}', value:${t.value || 0}})" class="btn-warning" style="padding:5px 10px; margin-right:5px;"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteTransaction('${t.id}')" class="btn-danger" style="padding:5px 10px;"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
             });
         }
+        
         const recentTbody = document.querySelector("#recentTable tbody");
         if (recentTbody) {
             recentTbody.innerHTML = "";
-            filtered.slice(0,10).forEach(t => {
-                recentTbody.innerHTML += `<tr><td>${t.date.split('-').reverse().join('/')}</td><td><span class="badge ${t.unit==='SANTOS'?'badge-santos':'badge-camacari'}">${t.unit==='SANTOS'?'Santos':'Camaçari'}</span></td><td>${t.description}</td><td><small>${t.accountCode}</small></td><td style="color:${t.type==='RECEITA'?'#27ae60':'#c0392b'}">R$ ${t.value.toFixed(2)}</td></tr>`;
+            filtered.slice(0, 10).forEach(t => {
+                recentTbody.innerHTML += `
+                    <tr>
+                        <td>${t.date ? t.date.split('-').reverse().join('/') : ''}</td>
+                        <td><span class="badge ${t.unit === 'SANTOS' ? 'badge-santos' : 'badge-camacari'}">${t.unit === 'SANTOS' ? 'Santos' : 'Camaçari'}</span></td>
+                        <td>${t.description || ''}</td>
+                        <td><small>${t.accountCode || ''}</small><br>${t.accountName || ''}</td>
+                        <td style="color:${t.type === 'RECEITA' ? '#27ae60' : '#c0392b'}">R$ ${(t.value || 0).toFixed(2)}</td>
+                    </tr>
+                `;
             });
         }
     }
 
     function applyFilters() { renderTransactions(); }
+    
     function clearFilters() {
-        document.getElementById("filterStart").value = "";
-        document.getElementById("filterEnd").value = "";
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0,10);
+        const todayStr = today.toISOString().slice(0,10);
+        document.getElementById("filterStart").value = firstDay;
+        document.getElementById("filterEnd").value = todayStr;
         document.getElementById("filterUnit").value = "";
         document.getElementById("filterServiceType").value = "";
         document.getElementById("filterType").value = "";
@@ -733,27 +890,37 @@
         const end = document.getElementById("dashEndDate").value;
         const unit = document.getElementById("dashUnit").value;
         const selectedAccounts = getSelectedAccounts();
+        
         if (start) filtered = filtered.filter(t => t.date >= start);
         if (end) filtered = filtered.filter(t => t.date <= end);
         if (unit !== "all") filtered = filtered.filter(t => t.unit === unit);
         if (selectedAccounts.length > 0) filtered = filtered.filter(t => selectedAccounts.includes(t.accountId));
+        
         const santosRec = filtered.filter(t => t.unit === "SANTOS" && t.type === "RECEITA").reduce((s,t)=>s+t.value,0);
         const santosExp = filtered.filter(t => t.unit === "SANTOS" && t.type === "DESPESA").reduce((s,t)=>s+t.value,0);
         const camacariRec = filtered.filter(t => t.unit === "CAMACARI" && t.type === "RECEITA").reduce((s,t)=>s+t.value,0);
         const camacariExp = filtered.filter(t => t.unit === "CAMACARI" && t.type === "DESPESA").reduce((s,t)=>s+t.value,0);
+        
         document.getElementById("santosRevenue").innerHTML = `R$ ${santosRec.toFixed(2)}`;
         document.getElementById("santosExpense").innerHTML = `R$ ${santosExp.toFixed(2)}`;
         document.getElementById("camacariRevenue").innerHTML = `R$ ${camacariRec.toFixed(2)}`;
         document.getElementById("camacariExpense").innerHTML = `R$ ${camacariExp.toFixed(2)}`;
         document.getElementById("totalRevenue").innerHTML = `R$ ${(santosRec+camacariRec).toFixed(2)}`;
         document.getElementById("totalProfit").innerHTML = `R$ ${(santosRec+camacariRec - santosExp-camacariExp).toFixed(2)}`;
+        
         const ctx = document.getElementById('monthlyChart').getContext('2d');
         if (monthlyChart) monthlyChart.destroy();
         monthlyChart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: ['Santos Rec', 'Santos Desp', 'Camaçari Rec', 'Camaçari Desp'],
-                    datasets: [{ label: 'R$', data: [santosRec, santosExp, camacariRec, camacariExp],
-                                backgroundColor: ['#2980b9','#5dade2','#e67e22','#f39c12'], borderRadius: 8 }] },
+            data: {
+                labels: ['Santos Receitas', 'Santos Despesas', 'Camaçari Receitas', 'Camaçari Despesas'],
+                datasets: [{
+                    label: 'R$',
+                    data: [santosRec, santosExp, camacariRec, camacariExp],
+                    backgroundColor: ['#2980b9','#5dade2','#e67e22','#f39c12'],
+                    borderRadius: 8
+                }]
+            },
             options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, ticks: { callback: v => `R$ ${v}` } } } }
         });
     }
@@ -767,8 +934,7 @@
         document.getElementById("dashUnit").value = "all";
         const selectAll = document.getElementById("selectAllAccounts");
         if (selectAll) selectAll.checked = true;
-        const checkboxes = document.querySelectorAll(".account-checkbox");
-        checkboxes.forEach(cb => cb.checked = true);
+        document.querySelectorAll(".account-checkbox").forEach(cb => cb.checked = true);
         updateDashboard();
     }
 
@@ -777,39 +943,45 @@
         const start = document.getElementById("dreStartDate").value;
         const end = document.getElementById("dreEndDate").value;
         const unit = document.getElementById("dreUnit").value;
+        
         if (start) filtered = filtered.filter(t => t.date >= start);
         if (end) filtered = filtered.filter(t => t.date <= end);
+        if (unit !== "all") filtered = filtered.filter(t => t.unit === unit);
         
-        function calcDRE(transactionsList) {
-            const receitas = transactionsList.filter(t => t.type === "RECEITA").reduce((s,t)=>s+t.value,0);
-            const custos = transactionsList.filter(t => t.type === "DESPESA" && (t.accountName.includes("Custo") || t.accountName.includes("Insumo"))).reduce((s,t)=>s+t.value,0);
-            const despesas = transactionsList.filter(t => t.type === "DESPESA" && !t.accountName.includes("Custo") && !t.accountName.includes("Insumo")).reduce((s,t)=>s+t.value,0);
-            const lucro = receitas - custos - despesas;
-            return { receitas, custos, despesas, lucro };
-        }
+        // Filtrar contas excluídas do DRE
+        filtered = filtered.filter(t => !isExcluded(t.accountId));
         
-        let geralData;
-        if (unit === "all") {
-            geralData = calcDRE(filtered);
-        } else {
-            geralData = calcDRE(filtered.filter(t => t.unit === unit));
-        }
+        const receitas = filtered.filter(t => t.type === "RECEITA").reduce((s,t)=>s+t.value,0);
+        const custos = filtered.filter(t => t.type === "DESPESA" && (t.accountName?.includes("Custo") || t.accountName?.includes("Insumo") || t.accountCode?.startsWith("3.2.1"))).reduce((s,t)=>s+t.value,0);
+        const despesas = filtered.filter(t => t.type === "DESPESA" && !t.accountName?.includes("Custo") && !t.accountName?.includes("Insumo") && !t.accountCode?.startsWith("3.2.1")).reduce((s,t)=>s+t.value,0);
+        const lucro = receitas - custos - despesas;
         
-        document.getElementById("dreGeral").innerHTML = `<table class="dre-table">
-            <tr><td>Receitas Totais</td><td style="text-align:right">R$ ${geralData.receitas.toFixed(2)}</td></tr>
-            <tr><td>(-) Custos Operacionais</td><td style="text-align:right">R$ ${geralData.custos.toFixed(2)}</td></tr>
-            <tr style="border-top:1px solid #ddd;"><td><strong>Margem Bruta</strong></td><td style="text-align:right"><strong>R$ ${(geralData.receitas - geralData.custos).toFixed(2)}</strong></td></tr>
-            <tr><td>(-) Despesas Operacionais</td><td style="text-align:right">R$ ${geralData.despesas.toFixed(2)}</td></tr>
-            <tr style="border-top:2px solid #27ae60;"><td><strong>Lucro Líquido</strong></td><td style="text-align:right"><strong style="color:${geralData.lucro >= 0 ? '#27ae60' : '#c0392b'}">R$ ${geralData.lucro.toFixed(2)}</strong></td></tr>
-        </table>`;
+        document.getElementById("dreGeral").innerHTML = `
+            <table class="dre-table">
+                <tr><td>Receitas Totais</td><td style="text-align:right">R$ ${receitas.toFixed(2)}</td></tr>
+                <tr><td>(-) Custos Operacionais</td><td style="text-align:right">R$ ${custos.toFixed(2)}</td></tr>
+                <tr style="border-top:1px solid #ddd;"><td><strong>Margem Bruta</strong></td><td style="text-align:right"><strong>R$ ${(receitas - custos).toFixed(2)}</strong></td></tr>
+                <tr><td>(-) Despesas Operacionais</td><td style="text-align:right">R$ ${despesas.toFixed(2)}</td></tr>
+                <tr style="border-top:2px solid #27ae60;"><td><strong>Lucro Líquido</strong></td><td style="text-align:right"><strong style="color:${lucro >= 0 ? '#27ae60' : '#c0392b'}">R$ ${lucro.toFixed(2)}</strong></td></tr>
+            </table>
+            <div style="margin-top: 10px; font-size: 0.7rem; color: #666;">
+                <i class="fas fa-info-circle"></i> ${filtered.length} lançamentos considerados | ${excludedAccounts.length} contas excluídas
+            </div>
+        `;
         
         const ctx = document.getElementById('dreChart').getContext('2d');
         if (dreChart) dreChart.destroy();
         dreChart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: ['Receitas', 'Custos', 'Despesas', 'Lucro'],
-                    datasets: [{ label: 'Valores (R$)', data: [geralData.receitas, geralData.custos, geralData.despesas, geralData.lucro],
-                                backgroundColor: ['#27ae60', '#c0392b', '#e67e22', '#2980b9'], borderRadius: 8 }] },
+            data: {
+                labels: ['Receitas', 'Custos', 'Despesas', 'Lucro'],
+                datasets: [{
+                    label: 'Valores (R$)',
+                    data: [receitas, custos, despesas, lucro],
+                    backgroundColor: ['#27ae60', '#c0392b', '#e67e22', lucro >= 0 ? '#2980b9' : '#c0392b'],
+                    borderRadius: 8
+                }]
+            },
             options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { callback: v => `R$ ${v}` } } } }
         });
     }
@@ -820,7 +992,7 @@
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Lançamentos");
         XLSX.writeFile(wb, `Cryotronics_${new Date().toISOString().slice(0,10)}.xlsx`);
-        showToast("Exportado!");
+        showToast("Exportado para Excel!");
     }
 
     function exportToJSON() {
@@ -831,7 +1003,7 @@
         a.download = `Cryotronics_${new Date().toISOString().slice(0,10)}.json`;
         a.click();
         URL.revokeObjectURL(url);
-        showToast("Exportado!");
+        showToast("Exportado para JSON!");
     }
 
     function openImportModal() { document.getElementById("importModal").style.display = "flex"; }
@@ -886,6 +1058,7 @@
         }
         closeImportModal();
         showToast(`Importado: ${success} sucesso, ${error} erros`);
+        initializeData();
     }
 
     document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
